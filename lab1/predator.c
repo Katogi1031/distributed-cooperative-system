@@ -55,10 +55,10 @@ void predatorCalcTotalCost(struct PredatorNode* goalPredatorNode,struct Predator
 //reconstructs the path from the beginning to the goal.prints out the path...
 void predatorReconstructPath(struct PredatorNode* goalPredatorNode);
 //------------------------------------------------------------------------------
-void Predator(int *ca, int *action){
-    /* caは実際１次元配列のため２次元に処理する(視覚的に見やすくするため)*/
-    char act[] = {'u', 'd', 'l', 'r', 's'};
-    /* predatorとpreyの位置を格納する領域を確保*/
+
+/* predator関数からフィールド情報を受け取り、最短経路を求めて次の行動位置を送る */
+void predatorAlgorithm(*ca){
+  /* predatorとpreyの位置を格納する領域を確保*/
     int predator[2];
     int prey[2];
     int p, q;
@@ -116,6 +116,17 @@ void Predator(int *ca, int *action){
 
     //call RECONSTRUCT_FUNC=>predatorReconstructedPath with finished as parameter...
     predatorReconstructedPath(finished);
+}
+
+
+/* Predator : フィールド情報をA*アルゴリズムを実行する関数に送り、次の行動を受け取る */
+void Predator(int *ca, int *action){
+    /* caは実際１次元配列のため２次元に処理する(視覚的に見やすくするため)*/
+    char act[] = {'u', 'd', 'l', 'r', 's'};
+
+    predatorAlgorithm(ca);
+
+    
     
     //wait for user input...
     getchar();
