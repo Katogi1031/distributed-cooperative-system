@@ -175,7 +175,7 @@ struct point* ReconstructThePath(struct node* goalNode){
 
 
 
-void predator(int *ca){
+void Predator(int *ca, int *action){
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
@@ -239,32 +239,40 @@ void predator(int *ca){
   
   struct point* a = ReconstructThePath(finished);
 
-  printf("%d %d\n", a->x, a->y);
+  printf("next Action (%d %d)\n", a->x, a->y);
 
-  
-
-  getchar();
-  
-}
-
-
-int main(void) {
-  FILE *fp;	          /* file pointer */
-  int rstat, i;		  /* fscanf return status and loop parameter */
-  int array[64];	       /* data array */
-
-  fp = fopen("battlefield.dat", "r"); /* open file to read */
-
-  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-    printf("Failed file open.\n"); 
-  } else {
-    for(i = 0; i < 64; i++){
-      rstat = fscanf(fp, "%d", &array[i]);
-    }
-
+  if(a->x - predator->x == 1){
+    *action = (int)act[1];
+    printf("Down\n");
+  }else if(a->x - predator->x == -1){
+    *action = (int)act[0];
+  }else if(a->y - predator->y == 1){
+    *action = (int)act[3];
+  }else{
+    *action = (int)act[2];
   }
-  fclose(fp);
-  predator(array);
-  return 0;
-
+  printf("%d\n", *action);
+  
 }
+
+
+// int main(void) {
+//   FILE *fp;	          /* file pointer */
+//   int rstat, i;		  /* fscanf return status and loop parameter */
+//   int array[64];	       /* data array */
+
+//   fp = fopen("battlefield.dat", "r"); /* open file to read */
+
+//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+//     printf("Failed file open.\n"); 
+//   } else {
+//     for(i = 0; i < 64; i++){
+//       rstat = fscanf(fp, "%d", &array[i]);
+//     }
+
+//   }
+//   fclose(fp);
+//   predator(array);
+//   return 0;
+
+// }
