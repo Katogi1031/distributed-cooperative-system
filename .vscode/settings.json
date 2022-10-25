@@ -1,6 +1,8 @@
 {
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "__tuple": "c",
+        "array": "c"
     }
 }
