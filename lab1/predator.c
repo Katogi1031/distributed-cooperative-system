@@ -53,10 +53,11 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   
   /* オープンリストの長さを求める */
   l1 = ExpandNode(current, openList, l1, closedList, l2);
-  
 
   /* 経路コストを計算する */
   CalculateTheTotalCost(goal, openList, l1); //問題あり
+
+  nextIndex = FindTheLeastCosted(openList,l1);
   
   struct node *nextNode = &((*openList)[nextIndex]);
   
@@ -280,17 +281,17 @@ void predator(int *ca){
 
   /* クローズリストの作成 */
   struct node **closedList = (struct node**)malloc(sizeof(struct node*));
-  
   *closedList = NULL;
 
-  *closedList = (struct node*)realloc((*closedList), sizeof(struct node));
-  memcpy(&((*closedList)[0]), startNode, sizeof(struct node));
-  closedLen = 1;
+  (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
+  memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
+  
 
  
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
+  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
+  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
   ReconstructThePath(finished);
 
