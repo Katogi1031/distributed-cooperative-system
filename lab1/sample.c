@@ -33,8 +33,7 @@ struct point
 
 //------------------------------------------------------------------------------
 //the function that operates during path finding process.
-struct node* AStarAlgorithm(struct node* current,struct node* goal,struct node **array,int l1,struct node **closed,
-int l2);
+struct node* AStarAlgorithm(struct node* current,struct node* goal,struct node **array,int l1,struct node **closed,int l2);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //the function to find the neighboring nodes.to be called inside AStarAlgorithm
