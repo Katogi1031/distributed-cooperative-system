@@ -95,6 +95,7 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y){
     return nextNode;
   }
+  if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
   return AStarAlgorithm(nextNode, goal, openList, l1, closedList, l2);
 
 }
@@ -104,8 +105,10 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   int i, j, count, found;
   count = 0;
 
-  struct node* tempList = (struct node*)calloc(4, sizeof(struct node));
-  for(i = 0; i < 4; i++){
+  // struct node* tempList = (struct node*)calloc(4, sizeof(struct node));
+  struct node* tempList;
+   tempList = (struct node*)calloc(4,sizeof(struct node));   
+   for(i = 0;i<4;i++){
       tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
       if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
         tempList[i].pnt->x = current->pnt->x-1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1.0f;
@@ -144,7 +147,7 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   // }
 
   /* 現在のノードが小ノードを持つかどうか*/
-  for(j = 0; j < 4; j++){ // 空白によって出力がかわる
+  for(j = 0; j < 4; j++){
       found = 0;           
       if(tempList[j].parent == NULL){
         return 0;
@@ -159,7 +162,7 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
         *openList = (struct node*)realloc((*openList),total*(sizeof(struct node)));
         memcpy(&((*openList)[total-1]),&tempList[j],sizeof(struct node));              
       }      
-  } 
+   } 
   // for(j = 0; j < 4; j++){
   //   found = 0;
   //   if(tempList[j].parent == NULL){
@@ -188,48 +191,67 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
 
 /* CalculateTheTotalCost */
 void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1){
-  int i, difx, dify;
+  // int i, difx, dify;
   // int x = (*openList)[0].pnt->x;
   printf("test\n");
-  for(i = 0;i<l1;i++)
-    {
-        difx = (*openList)[i].pnt->x - goalNode->pnt->x;
-        dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-        (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
-    }
+  // for(i = 0;i<l1;i++)
+  //   {
+  //       difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+  //       dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+  //       (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
+  //   }
+  int i,difx,dify;
+  for(i = 0; i < l1; i++){
+    difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+    dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
+  }
 }
 
 /* FindTheLeastCosted */
 int FindTheLeastCosted(struct node **openList, int l1){
+  // int i, min, minIndex;
+  // min = (*openList)[0].g + (*openList)[0].h;
+  // minIndex = 0;
+  // for(i = 1; i < l1; i++){
+  //   if((*openList)[i].g * (*openList)[i].h < min){
+  //     min = (*openList)[i].g + (*openList)[i].h;
+  //     minIndex = i;
+  //   }
+  // }
+  // return minIndex;
+
   int i, min, minIndex;
-  min = (*openList)[0].g + (*openList)[0].h;
-  minIndex = 0;
-  for(i = 1; i < l1; i++){
-    if((*openList)[i].g * (*openList)[i].h < min){
-      min = (*openList)[i].g + (*openList)[i].h;
-      minIndex = i;
+    min = (*openList)[0].g + (*openList)[0].h;
+    minIndex = 0;
+    for(i = 1; i < l1; i++){
+      if((*openList)[i].g + (*openList)[i].h < min){
+        min = (*openList)[i].g + (*openList)[i].h;
+        minIndex = i;
+      } 
     }
-  }
-  return minIndex;
+    return minIndex;
 }
 
 /* ReconstructThePath */
 void ReconstructThePath(struct node* goalNode){
+  // struct node* current = goalNode;
+  // struct point* ptr = NULL;
+  // int steps = 0, i;
+  
   struct node* current = goalNode;
   struct point* ptr = NULL;
-  int steps = 0, i;
-  
+  int steps = 0,i;
   while(current->parent != NULL){
-    steps++;
-    ptr = (struct point*)realloc(ptr, steps*sizeof(struct point));
-    memcpy(&ptr[steps-1], current->pnt, sizeof(struct point));
-    current = current->parent;
+      steps++;
+      ptr = (struct point*)realloc(ptr,steps*sizeof(struct point));
+      memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
+      current = current->parent;                    
   }
   for(i = steps; i >= 1; i--){
-    gfield[ptr[i-1].x][ptr[i-1].y] = 20;
-    printf("(%d, %d)", ptr[i-1].x, ptr[i-1].y);
-    if(i > 1)
-      printf("=>");
+    // field[ptr[i-1].x][ptr[i-1].y] = 20;
+    printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
+    if(i>1)  printf("=>");  
   }
   printf("\n");
 }
