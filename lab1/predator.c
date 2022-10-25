@@ -6,8 +6,8 @@ Created October 25, 2022
 Language : C
 
 
-Function predator(int *ca, int action)
-Description
+Function : predator(int *ca, int action)
+Description : Using the A* algorithm, find the shortest distance between Predator and Prey and choose an action.
 */
 
 #include <stdio.h>
@@ -41,7 +41,8 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
 void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1);
 int FindTheLeastCosted(struct node **openList, int l1);
-void ReconstructThePath(struct node* goalNode);
+// void ReconstructThePath(struct node* goalNode);
+struct point* ReconstructThePath(struct node* goalNode);
 
 /* AStarAlgorithm */
 struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
@@ -151,7 +152,8 @@ int FindTheLeastCosted(struct node **openList, int l1){
 }
 
 /* ReconstructThePath */
-void ReconstructThePath(struct node* goalNode){
+// void ReconstructThePath(struct node* goalNode){
+struct point* ReconstructThePath(struct node* goalNode){
   struct node* current = goalNode;
   struct point* ptr = NULL;
   int steps = 0,i;
@@ -161,11 +163,13 @@ void ReconstructThePath(struct node* goalNode){
       memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
       current = current->parent;                    
   }
-  for(i = steps; i >= 1; i--){
-    printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
-    if(i>1)  printf("=>");  
-  }
+  printf("%d", steps);
+  // for(i = steps; i >= 1; i--){
+  //   printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
+  //   if(i>1)  printf("=>");  
+  // }
   printf("\n");
+  return &ptr[steps-1];
 }
 
 
@@ -233,7 +237,11 @@ void predator(int *ca){
   // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
   struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
-  ReconstructThePath(finished);
+  struct point* a = ReconstructThePath(finished);
+
+  printf("%d %d\n", a->x, a->y);
+
+  
 
   getchar();
   
