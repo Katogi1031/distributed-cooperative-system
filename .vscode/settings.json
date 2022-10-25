@@ -3,6 +3,11 @@
     "files.associations": {
         "string.h": "c",
         "__tuple": "c",
-        "array": "c"
+        "array": "c",
+        "chrono": "c",
+        "limits": "c",
+        "ratio": "c",
+        "algorithm": "c",
+        "memory": "c"
     }
 }
