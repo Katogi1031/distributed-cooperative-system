@@ -64,21 +64,32 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   /* 次のオープンリストを作成する */
   struct node *tempList = (struct node*)calloc(l1-1, sizeof(struct node));
   
-  for(i = 0, j = 0; i < l1; i++){
+  // for(i = 0, j = 0; i < l1; i++){
+  //   if(i != nextIndex){
+  //     memcpy(&tempList[j], &((*openList)[i]), sizeof(struct node));
+  //     j++;
+  //   }
+  // }
+  // l1--;
+  // l2++;
+  // *openList = tempList;
+
+  for(i = 0,j=0;i<l1;i++){
     if(i != nextIndex){
-      memcpy(&tempList[j], &((*openList)[i]), sizeof(struct node));
+      memcpy(&tempList[j],&((*openList)[i]),sizeof(struct node));
       j++;
-    }
+    } 
   }
-  l1--;
-  l2++;
+  l1--,l2++;
   *openList = tempList;
 
   
 
   /* クローズドノードに追加していく */
+  // *closedList = (struct node*)realloc((*closedList), l2*(sizeof(struct node)));
+  // memcpy(&(*closedList)[l2-1], nextNode, sizeof(struct node));
   *closedList = (struct node*)realloc((*closedList), l2*(sizeof(struct node)));
-  memcpy(&(*closedList)[l2-1], nextNode, sizeof(struct node));
+  memcpy(&((*closedList)[l2-1]),nextNode,sizeof(struct node));
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y){
