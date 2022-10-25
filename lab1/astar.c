@@ -18,6 +18,8 @@ static int maze[8][8] = {{  1,  0,  0,  0,  0,  0,  0,  0},
                          {  0,  0,  0,  0,  0, 10,  0,  0}
                         };
 
+int gfield[8][8];                  
+
 struct node
 {
   struct point* pnt;
@@ -62,20 +64,39 @@ int main()
     int predator[2];
     int prey[2];
 
+    FILE *fp;	          /* file pointer */
+    int rstat, i;		  /* fscanf return status and loop parameter */
+    int garray[64];	       /* data array */
+
+    fp = fopen("battlefield.dat", "r"); /* open file to read */
+
+    if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+      printf("Failed file open.\n"); 
+    } else {
+      for(i = 0; i < 64; i++){
+        rstat = fscanf(fp, "%d", &garray[i]);
+      }
+    }
+    fclose(fp);
+
+    int p, q;
+
     /* predatorとpreyの位置を特定*/
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            switch(maze[i][j]){
-                case 1:
-                    
-                    predator[0] = i;
-                    predator[1] = j;
-                case 10:
-                    
-                    prey[0] = i;
-                    prey[1] = j;
-            }
-        }
+    for(int i = 0; i < 64; i++){
+      p = i / 8;
+      q = i % 8;
+      gfield[p][q] = garray[i];
+      switch(gfield[p][q]){
+          case 1:
+              
+              predator[0] = p;
+              predator[1] = q;
+          case 10:
+              
+              prey[0] = p;
+              prey[1] = q;
+      }
+        
     }
 
     //create START_NODE=>sP and set the data...
@@ -114,10 +135,10 @@ int main()
 struct node* AStarAlgorithm(struct node* current,struct node* goal,struct node **array,int l1,struct node **closed,int l2)
 {
   int i,j,nextIndex;
-  static int count = 0;
+  // static int count = 0;
 
-  printf("count = %d\n", count);
-  count++;
+  // printf("count = %d\n", count);
+  // count++;
 
   //call EXPAND_NODE_FUNC ExpandNode and set LEN_OF_OPEN_LIST to the value returned from that function...
   l1 = ExpandNode(current,array,l1,closed,l2);
