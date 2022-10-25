@@ -30,20 +30,25 @@ struct predatorPosition{
 
 struct predatorPosition* predatorCreatepredatorPosition(){
   struct predatorPosition* p = (struct predatorPosition*)malloc(sizeof(struct predatorPosition));
-  // struct point* sP = (struct point*)malloc(sizeof(struct point));
   return p;
 }
 
+
+
+
 void predator(int *ca){
+  printf("1");
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
   int field[8][8];
   int p, q;
-  struct predatorPosition *predator, *prey;
 
-  // predatorCreatepredatorPosition(predator);
-  // predatorCreatepredatorPosition(prey);
+  struct predatorPosition *predator, *prey;
+  int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
+
+  
+
   predator = predatorCreatepredatorPosition();
   prey = predatorCreatepredatorPosition();
 
@@ -64,8 +69,43 @@ void predator(int *ca){
 
   }
 
-  printf("predator (%d %d)\n", predator->x, predator->y);
-  printf("prey     (%d %d)\n", prey->x, prey->y);
+  // printf("predator (%d %d)\n", predator->x, predator->y);
+  // printf("prey     (%d %d)\n", prey->x, prey->y);
+
+  /* スタートノードの作成 */
+  struct predatorPosition* sp = predatorCreatepredatorPosition();
+  sp->x = predator->x, sp->y = predator->y;
+  struct predatorNode* sn = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  sn->pnt = sp, sn->parent = NULL, sn->g = 0, sn->h = 0;
+  
+  /* ゴールノードの作成 */
+  struct predatorPosition* gp = predatorCreatepredatorPosition();
+  gp->x = prey->x, gp->y = prey->y;
+  struct predatorNode* gn = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  gn->pnt = gp, gn->parent = NULL, gn->g = 0, gn->h = 0;
+
+  /* オープンリストの作成 */
+  struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *openList = NULL;
+
+  /* クローズリストの作成 */
+  struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  
+  *closedList = NULL;
+
+  *closedList = (struct predatorNode*)realloc((*closedList), sizeof(struct predatorNode));
+  memcpy(&((*closedList)[0]), sn, sizeof(struct predatorNode));
+  closedLen = 1;
+
+  
+
+  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+  // struct predatorNode* finished = AStarAlgorithm(sn, gn, openList, openLen, closedList, closedLen);
+
+  
+
+
+  
 }
 
 int main(void) {
@@ -85,16 +125,10 @@ int main(void) {
       rstat = fscanf(fp, "%d", &array[i]);
     }
 
-    // for(i = 0; i < 8; i++){
-    //     for(int j = 0; j < 8; j++){
-            
-    //         printf("%3d ", array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-      
-    
-  }   
+  }
+
+       
+
   predator(array);
   fclose(fp);
 
