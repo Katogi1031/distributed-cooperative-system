@@ -8,6 +8,10 @@
         "limits": "c",
         "ratio": "c",
         "algorithm": "c",
-        "memory": "c"
+        "memory": "c",
+        "iterator": "c",
+        "__bit_reference": "c",
+        "bitset": "c",
+        "unordered_map": "c"
     }
 }
