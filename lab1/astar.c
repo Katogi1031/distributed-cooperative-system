@@ -114,6 +114,10 @@ int main()
 struct node* AStarAlgorithm(struct node* current,struct node* goal,struct node **array,int l1,struct node **closed,int l2)
 {
   int i,j,nextIndex;
+  static int count = 0;
+
+  printf("count = %d\n", count);
+  count++;
 
   //call EXPAND_NODE_FUNC ExpandNode and set LEN_OF_OPEN_LIST to the value returned from that function...
   l1 = ExpandNode(current,array,l1,closed,l2);
