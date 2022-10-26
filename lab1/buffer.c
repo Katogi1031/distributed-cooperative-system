@@ -23,6 +23,7 @@ struct predatorNode{
   struct predatorNode* predator_parent;
   float predator_predatorg;
   float predator_h;
+  float predator_g;
 };
 
 struct predatorPoint{
@@ -92,13 +93,13 @@ int ExpandNode(struct predatorNode* predator_current, struct predatorNode **pred
    predator_tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
    for(predator_i = 0; predator_i < 4; predator_i++){
       predator_tempList[predator_i].predator_pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      if(predator_i == 0 && predator_gfield[predator_current->predator_pnt->predator_x-1][predator_current->predator_pnt->predator_y] != -1)  // 左に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_current->predator_pnt->predator_x-1,tempList[predator_i].predator_pnt->predator_y = predator_current->predator_pnt->predator_y,predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+      if(predator_i == 0 && predator_field[predator_current->predator_pnt->predator_x-1][predator_current->predator_pnt->predator_y] != -1)  // 左に障害物がないか
+        predator_tempList[predator_i].predator_pnt->predator_x = predator_current->predator_pnt->predator_x-1,predator_tempList[predator_i].predator_pnt->predator_y = predator_current->predator_pnt->predator_y,predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
       else if(predator_i == 3 && predator_field[predator_current->predator_pnt->predator_x+1][predator_current->predator_pnt->predator_y] != -1) // 右に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_current->predator_pnt->predator_x+1,predator_tempList[predator_i].predator_pnt->predator_y = predator_current->predator_pnt->predator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
+      else if(predator_i == 1 && predator_field[predator_current->predator_pnt->predator_x][predator_current->predator_pnt->predator_y+1] != -1) // 下に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_current->predator_pnt->predator_x, predator_tempList[predator_i].predator_pnt->predator_y = predator_current->predator_pnt->predator_y+1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
+      else if(predator_i == 2 && predator_field[predator_current->predator_pnt->predator_x][predator_current->predator_pnt->predator_y-1] != -1) // 上に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_current->predator_pnt->predator_x, predator_tempList[predator_i].predator_pnt->predator_y = predator_current->predator_pnt->predator_y-1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
     
       predator_tempList[predator_i].predator_parent = predator_current;
@@ -240,10 +241,13 @@ void Predator(int *predator_ca, int *predator_action){
     printf("Down\n");
   }else if(predator_a->predator_x - predator_predator->predator_x == -1){
     *predator_action = (int)predator_act[0];
+    printf("Up\n");
   }else if(predator_a->predator_y - predator_predator->predator_y == 1){
     *predator_action = (int)predator_act[3];
+    printf("Right\n");
   }else{
     *predator_action = (int)predator_act[2];
+    printf("Left\n");
   }
   printf("%d\n", *predator_action);
   
