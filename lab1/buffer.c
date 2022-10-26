@@ -23,7 +23,6 @@ struct predatorNode{
   struct predatorNode* predator_parent;
   float predator_g;
   float predator_h;
-  // float f;
 };
 
 
@@ -31,11 +30,6 @@ struct predatorPoint{
   int predator_x;
   int predator_y;
 };
-
-struct predatorPoint* predatorCreatePosition(){
-  struct predatorPoint* p = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-  return p;
-}
 
 /* 関数の呼び出し順に宣言したいための処置 */
 struct predatorNode* AStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
@@ -153,7 +147,6 @@ int FindTheLeastCosted(struct predatorNode **predator_openList, int predator_l1)
 }
 
 /* ReconstructThePath */
-// void ReconstructThePath(struct node* goalNode){
 struct predatorPoint* ReconstructThePath(struct predatorNode* predator_goalNode){
   struct predatorNode* predator_current = predator_goalNode;
   struct predatorPoint* predator_ptr = NULL;
@@ -164,12 +157,6 @@ struct predatorPoint* ReconstructThePath(struct predatorNode* predator_goalNode)
       memcpy(&predator_ptr[predator_steps-1], predator_current->predator_pnt, sizeof(struct predatorPoint));
       predator_current = predator_current->predator_parent;                    
   }
-  printf("%d", predator_steps);
-  // for(i = steps; i >= 1; i--){
-  //   printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
-  //   if(i>1)  printf("=>");  
-  // }
-  printf("\n");
   return &predator_ptr[predator_steps-1];
 }
 
@@ -180,14 +167,13 @@ void Predator(int *predator_ca, int *predator_action){
   char predator_act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int predator_size_1d = 64;
   int predator_size_2d = 8;
-  // int predator_field[8][8];
   int predator_p, predator_q;
 
   struct predatorPoint *predator_predator, *predator_prey;
   int predator_openLen = 0, predator_closedLen = 0; // オープンリスト、クローズリストの長さ
 
-  predator_predator = predatorCreatePosition();
-  predator_prey = predatorCreatePosition();
+  predator_predator = = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  predator_prey = = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
 
   for(int predator_i = 0; predator_i < predator_size_1d; predator_i++){
     predator_p = predator_i / predator_size_2d;
@@ -244,7 +230,6 @@ void Predator(int *predator_ca, int *predator_action){
 
   if(predator_a->predator_x - predator_predator->predator_x == 1){
     *predator_action = (int)predator_act[1];
-    printf("Down\n");
   }else if(predator_a->predator_x - predator_predator->predator_x == -1){
     *predator_action = (int)predator_act[0];
   }else if(predator_a->predator_y - predator_predator->predator_y == 1){
@@ -252,6 +237,5 @@ void Predator(int *predator_ca, int *predator_action){
   }else{
     *predator_action = (int)predator_act[2];
   }
-  printf("%d\n", *predator_action);
   
 }
