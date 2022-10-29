@@ -241,16 +241,16 @@ void prey(int *ca){
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
+  int min = 100;
+  for(int i = 0; i < 4; i++){
+    gP->x = prey->x + array[i][0], gP->y = prey->y + array[i][1];
+    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
 
- for(int i = 0; i < 4; i++){
-  gP->x = prey->x + array[i][0], gP->y = prey->y + array[i][1];
-  goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
-
-  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
-  
-  ReconstructThePath(finished);
+    /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+    // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
+    struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+    
+    ReconstructThePath(finished);
  }
 
   
