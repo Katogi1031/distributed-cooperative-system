@@ -181,7 +181,7 @@ void ReconstructThePath(struct node* goalNode){
 
 
 
-void predator(int *ca){
+void prey(int *ca){
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
@@ -224,10 +224,16 @@ void predator(int *ca){
   struct node* startNode = (struct node*)malloc(sizeof(struct node));
   startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
   
+  // preyから4方向それぞれに１移動したものをすべての最短距離を算出し、その中から最小値を求める
+  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+  for(int i = 0, i < 4; i++){
+    
+  }
+
   /* ゴールノードの作成 */
   struct point* gP = (struct point*)malloc(sizeof(struct point));
 //     gP->x = prey->x,gP->y = prey->y;
-    gP->x = 5,gP->y = 3;
+    gP->x = prey->x,gP->y = prey->y;
     struct node* goalNode = (struct node*)malloc(sizeof(struct node));
     goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
     
@@ -273,7 +279,7 @@ int main(void) {
 
   }
   fclose(fp);
-  predator(array);
+  prey(array);
   return 0;
 
 }
