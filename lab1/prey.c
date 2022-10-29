@@ -183,7 +183,7 @@ void ReconstructThePath(struct node* goalNode){
 
 
 
-void prey(int *ca){
+void prey(int *ca){ // int *action
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
@@ -227,15 +227,14 @@ void prey(int *ca){
   startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
   
   // preyから4方向それぞれに１移動したものをすべての最短距離を算出し、その中から最小値を求める
-  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // 右、左、下、上
   
 
   /* ゴールノードの作成 */
   struct point* gP = (struct point*)malloc(sizeof(struct point));
 //     gP->x = prey->x,gP->y = prey->y;
-    gP->x = prey->x,gP->y = prey->y;
     struct node* goalNode = (struct node*)malloc(sizeof(struct node));
-    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+    
     
 
   /* オープンリストの作成 */
@@ -249,41 +248,69 @@ void prey(int *ca){
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
-  // for(int i = 0, i < 4; i++){
-    
-  // }
+  int max = 0, maxIndex;
+  for(int i = 0; i < 4; i++){
+    gP->x = prey->x + array[i][0],gP->y = prey->y + array[i][1];
+    goalNode->pnt = gP, goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+
+    if(gfield[gP->x][gP->y] == -1){
+      break;
+    }
+
+    int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+
+    if (max < value){
+      max = value;
+      maxIndex = i;
+    }
+  }
  
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
   // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-  int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+  
   
   // ReconstructThePath(finished);
   // printf("f = %d\n", finished->f);
   // printf("f = %2d, g = %2d, h = %2d\n", finished->f, finished->g, finished->h);
-  printf("%d\n", value);
+  printf("%d %d\n", max, maxIndex);
+
+  if(maxIndex == 0){
+    *action = (int)act[3];
+    printf("right\n");
+  }else if(maxIndex == 1){
+    *action = (int)act[2];
+    printf("left\n");
+  }else if(maxIndex == 2){
+    *action = (int)act[1];
+    printf("down\n");
+  }else{
+    *action = (int)act[0];
+    printf("up\n");
+  }
+
   getchar();
   
 }
 
 
-int main(void) {
-  FILE *fp;	          /* file pointer */
-  int rstat, i;		  /* fscanf return status and loop parameter */
-  int array[64];	       /* data array */
+// int main(void) {
+//   FILE *fp;	          /* file pointer */
+//   int rstat, i;		  /* fscanf return status and loop parameter */
+//   int array[64];	       /* data array */
 
-  fp = fopen("battlefield.dat", "r"); /* open file to read */
+//   fp = fopen("battlefield.dat", "r"); /* open file to read */
 
-  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-    printf("Failed file open.\n"); 
-  } else {
-    for(i = 0; i < 64; i++){
-      rstat = fscanf(fp, "%d", &array[i]);
-    }
+//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+//     printf("Failed file open.\n"); 
+//   } else {
+//     for(i = 0; i < 64; i++){
+//       rstat = fscanf(fp, "%d", &array[i]);
+//     }
 
-  }
-  fclose(fp);
-  prey(array);
-  return 0;
+//   }
+//   fclose(fp);
+//   prey(array);
+//   return 0;
 
-}
+// }
