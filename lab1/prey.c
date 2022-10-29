@@ -165,6 +165,7 @@ void ReconstructThePath(struct node* goalNode){
   
   while(current->parent != NULL){
     steps++;
+    printf("f = %2d, g = %2d, h = %2d\n", current->f, current->g, current->h);
     ptr = (struct point*)realloc(ptr, steps*sizeof(struct point));
     memcpy(&ptr[steps-1], current->pnt, sizeof(struct point));
     current = current->parent;
@@ -191,7 +192,7 @@ void prey(int *ca){
   struct point *predator, *prey;
   int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
 
-  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // 右、左、下、上
+  
 
   predator = predatorCreatePosition();
   prey = predatorCreatePosition();
@@ -224,10 +225,16 @@ void prey(int *ca){
   struct node* startNode = (struct node*)malloc(sizeof(struct node));
   startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
   
+  // preyから4方向それぞれに１移動したものをすべての最短距離を算出し、その中から最小値を求める
+  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+  
+
   /* ゴールノードの作成 */
   struct point* gP = (struct point*)malloc(sizeof(struct point));
-  struct node* goalNode = (struct node*)malloc(sizeof(struct node));
-  
+//     gP->x = prey->x,gP->y = prey->y;
+    gP->x = prey->x,gP->y = prey->y;
+    struct node* goalNode = (struct node*)malloc(sizeof(struct node));
+    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
     
 
   /* オープンリストの作成 */
@@ -241,19 +248,18 @@ void prey(int *ca){
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
-  int min = 100;
-  for(int i = 0; i < 4; i++){
-    gP->x = prey->x + array[i][0], gP->y = prey->y + array[i][1];
-    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
-
-    /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-    // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-    struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+  // for(int i = 0, i < 4; i++){
     
-    ReconstructThePath(finished);
- }
+  // }
+ 
 
+  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
+  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
+  ReconstructThePath(finished);
+  // printf("f = %d\n", finished->pnt->x);
+  printf("f = %2d, g = %2d, h = %2d\n", finished->f, finished->g, finished->h);
 
   getchar();
   
