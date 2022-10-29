@@ -191,7 +191,7 @@ void prey(int *ca){
   struct point *predator, *prey;
   int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
 
-  
+  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; // 右、左、下、上
 
   predator = predatorCreatePosition();
   prey = predatorCreatePosition();
@@ -224,18 +224,10 @@ void prey(int *ca){
   struct node* startNode = (struct node*)malloc(sizeof(struct node));
   startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
   
-  // preyから4方向それぞれに１移動したものをすべての最短距離を算出し、その中から最小値を求める
-  int array[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-  for(int i = 0, i < 4; i++){
-    
-  }
-
   /* ゴールノードの作成 */
   struct point* gP = (struct point*)malloc(sizeof(struct point));
-//     gP->x = prey->x,gP->y = prey->y;
-    gP->x = prey->x,gP->y = prey->y;
-    struct node* goalNode = (struct node*)malloc(sizeof(struct node));
-    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+  struct node* goalNode = (struct node*)malloc(sizeof(struct node));
+  
     
 
   /* オープンリストの作成 */
@@ -250,13 +242,18 @@ void prey(int *ca){
   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
 
- 
+ for(int i = 0; i < 4; i++){
+  gP->x = prey->x + array[i][0], gP->y = prey->y + array[i][1];
+  goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
   // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
   struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
   ReconstructThePath(finished);
+ }
+
+  
 
   getchar();
   
