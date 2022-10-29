@@ -37,14 +37,14 @@ struct point* predatorCreatePosition(){
 }
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
+int AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
 void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1);
 int FindTheLeastCosted(struct node **openList, int l1);
 void ReconstructThePath(struct node* goalNode);
 
 /* AStarAlgorithm */
-struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
+int AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
   int i, j, nextIndex;
   int min;
 
@@ -59,7 +59,6 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   CalculateTheTotalCost(goal, openList, l1); 
 
   nextIndex = FindTheLeastCosted(openList,l1);
-  printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
 //   printf("%d\n", min);
   struct node *nextNode = &((*openList)[nextIndex]);
   
@@ -77,10 +76,12 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
 
   *closedList = (struct node*)realloc((*closedList), l2*(sizeof(struct node)));
   memcpy(&((*closedList)[l2-1]),nextNode,sizeof(struct node));
+  printf("%d\n", nextIndex);
+  printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y){
-    return nextNode;
+    return (int)(*openList)[nextIndex].f;
   }
   return AStarAlgorithm(nextNode, goal, openList, l1, closedList, l2);
 
@@ -165,7 +166,7 @@ void ReconstructThePath(struct node* goalNode){
   
   while(current->parent != NULL){
     steps++;
-    printf("f = %2d, g = %2d, h = %2d\n", current->f, current->g, current->h);
+    // printf("f = %2d, g = %2d, h = %2d\n", current->f, current->g, current->h);
     ptr = (struct point*)realloc(ptr, steps*sizeof(struct point));
     memcpy(&ptr[steps-1], current->pnt, sizeof(struct point));
     current = current->parent;
@@ -255,12 +256,12 @@ void prey(int *ca){
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
   // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+  int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
-  ReconstructThePath(finished);
-  // printf("f = %d\n", finished->pnt->x);
-  printf("f = %2d, g = %2d, h = %2d\n", finished->f, finished->g, finished->h);
-
+  // ReconstructThePath(finished);
+  // printf("f = %d\n", finished->f);
+  // printf("f = %2d, g = %2d, h = %2d\n", finished->f, finished->g, finished->h);
+  printf("%d\n", value);
   getchar();
   
 }
