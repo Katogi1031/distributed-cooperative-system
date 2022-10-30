@@ -46,7 +46,7 @@ int preyAStarAlgorithm(struct node* current, struct node* goal, struct node **op
 
   /* オープンリストの長さを求める */
   l1 = preyExpandNode(current, openList, l1, closedList, l2);
-  printf("l1 = %d\n", l1);
+  // printf("l1 = %d\n", l1);
 
   /* 経路コストを計算する */
   preyCalculateTheTotalCost(goal, openList, l1); //問題あり
@@ -210,19 +210,21 @@ void Prey(int *ca, int *action){
   int arr[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right
   int max = -1, maxIndex = -1;
 
+  /* スタートノードの作成 */
+  struct point* sP = (struct point*)malloc(sizeof(struct point));
+  sP->x = predator->x,sP->y = predator->y;
+  struct node* startNode = (struct node*)malloc(sizeof(struct node));
+  startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
+
   for(int i = 0; i < 4; i++){
-    /* スタートノードの作成 */
-    struct point* sP = (struct point*)malloc(sizeof(struct point));
-    sP->x = predator->x,sP->y = predator->y;
-    struct node* startNode = (struct node*)malloc(sizeof(struct node));
-    startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
-    
     /* ゴールノードの作成 */
     struct point* gP = (struct point*)malloc(sizeof(struct point));
     gP->y = prey->y + arr[i][0], gP->x = prey->x + arr[i][1];
 
+    
     if(gfield[gP->y][gP->x] == -1 || gP->x >= 8 || gP->x < 0 || gP->y >= 8 || gP->y < 0) 
       continue;
+    
 
     struct node* goalNode = (struct node*)malloc(sizeof(struct node));
     goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
@@ -237,7 +239,7 @@ void Prey(int *ca, int *action){
 
     (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
     memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
-
+    printf("y = %d, x = %d\n", goalNode->pnt->y, goalNode->pnt->x);
     /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
     // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
     int value = preyAStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
@@ -248,10 +250,10 @@ void Prey(int *ca, int *action){
       maxIndex = i;
     }
 
-    free(startNode);
+    // free(startNode);
+    // free(sP);
     free(goalNode);
     free(gP);
-    free(sP);
     free(openList);
     free(closedList);
   }
