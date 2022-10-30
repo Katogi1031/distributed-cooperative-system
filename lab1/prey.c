@@ -205,51 +205,73 @@ void Prey(int *ca, int *action){
 
   // printf("predator (%d %d)\n", predator->x, predator->y);
   // printf("prey     (%d %d)\n", prey->x, prey->y);
-
-  /* スタートノードの作成 */
-  struct point* sP = (struct point*)malloc(sizeof(struct point));
-  sP->x = predator->x,sP->y = predator->y;
-  struct node* startNode = (struct node*)malloc(sizeof(struct node));
-  startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
   
-  /* ゴールノードの作成 */
-  struct point* gP = (struct point*)malloc(sizeof(struct point));
-    gP->x = prey->x,gP->y = prey->y;
+  int arr[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right
+  int max = -1, maxIndex = -1;
+
+  for(int i = 0; i < 4; i++){
+    /* スタートノードの作成 */
+    struct point* sP = (struct point*)malloc(sizeof(struct point));
+    sP->x = predator->x,sP->y = predator->y;
+    struct node* startNode = (struct node*)malloc(sizeof(struct node));
+    startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
+    
+    /* ゴールノードの作成 */
+    struct point* gP = (struct point*)malloc(sizeof(struct point));
+    gP->y = prey->y + arr[i][0], gP->x = prey->x + arr[i][1];
+
+    if(gfield[gP->y][gP->x] == -1 || gP->x >= 8 || gP->x < 0 || gP->y >= 8 || gP->y < 0) 
+      continue;
+
     struct node* goalNode = (struct node*)malloc(sizeof(struct node));
     goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
 
-  /* オープンリストの作成 */
-  struct node **openList = (struct node**)malloc(sizeof(struct node*));
-  *openList = NULL;
+    /* オープンリストの作成 */
+    struct node **openList = (struct node**)malloc(sizeof(struct node*));
+    *openList = NULL;
 
-  /* クローズリストの作成 */
-  struct node **closedList = (struct node**)malloc(sizeof(struct node*));
-  *closedList = NULL;
+    /* クローズリストの作成 */
+    struct node **closedList = (struct node**)malloc(sizeof(struct node*));
+    *closedList = NULL;
 
-  (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
-  memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
+    (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
+    memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
+
+    /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+    // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
+    int value = preyAStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+    printf("value = %d\n", value);
+
+    if(max < value){
+      max = value;
+      maxIndex = i;
+    }
+
+    free(startNode);
+    free(goalNode);
+    free(gP);
+    free(sP);
+    free(openList);
+    free(closedList);
+  }
+
+  printf("max = %d, index = %d\n", max, maxIndex);
+
   
-
- 
-
-  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-  int value = preyAStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
-  printf("value = %d\n", value);
  
 
   int r = rand() % 4;
 
-  if(r == 0){
+  if(maxIndex == 0){
     *action = (int)act[0];
     printf("up\n");
-  }else if(r == 1){
+  }else if(maxIndex == 1){
     *action = (int)act[1];
     printf("down\n");
-  }else if(r == 2){
+  }else if(maxIndex == 2){
     *action = (int)act[2];
     printf("left\n");
-  }else if(r == 3){
+  }else if(maxIndex == 3){
     *action = (int)act[3];
     printf("right\n");
   }
