@@ -91,13 +91,13 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   struct node* tempList = (struct node*)calloc(4, sizeof(struct node));
   for(i = 0; i < 4; i++){
       tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
-      if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
+      if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1)  // 上に障害物がないか
         tempList[i].pnt->x = current->pnt->x-1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1.0f;
-      else if(i == 3 && gfield[current->pnt->x+1][current->pnt->y] != -1) // 右に障害物がないか
+      else if(i == 3 && gfield[current->pnt->x+1][current->pnt->y] != -1) // 下に障害物がないか
         tempList[i].pnt->x = current->pnt->x+1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1.0f;
-      else if(i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
+      else if(i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1) // 右に障害物がないか
         tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y+1,tempList[i].g = current->g+1.0f;
-      else if(i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
+      else if(i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1) // 左に障害物がないか
         tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y-1,tempList[i].g = current->g+1.0f;
     
       tempList[i].parent = current;
@@ -214,7 +214,7 @@ void Prey(int *ca, int *action){ // int *action
  
 
   //printf("predator (%d %d)\n", predator->x, predator->y);
-  //printf("prey     (%d %d)\n", prey->x, prey->y);
+  printf("prey     (%d %d)\n", prey->x, prey->y);
 
   /* スタートノードの作成 */
   struct point* sP = (struct point*)malloc(sizeof(struct point));
@@ -244,23 +244,34 @@ void Prey(int *ca, int *action){ // int *action
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
-  int max = 0, maxIndex;
+  int max = -1, maxIndex = -1;
   for(int i = 0; i < 4; i++){
-    gP->x = prey->x + array[i][0],gP->y = prey->y + array[i][1];
-    goalNode->pnt = gP, goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
-    printf("%d %d\n", gP->y, gP->x);
-    if(gfield[gP->x][gP->y] == -1){
-      break;
-    }if(goalNode->pnt->y > 7){break;}
-    if(goalNode->pnt->y < 0){break;}
-    if(goalNode->pnt->x > 7){break;}
-    if(goalNode->pnt->x < 0){break;}
+//	  if(i > 0){
+//		  free(gP);
+//		  free(goalNode);
+//		  struct point* gP = (struct point*)malloc(sizeof(struct point));
+//		  struct node* goalNode = (struct node*)malloc(sizeof(struct node));
+//	  }
+    gP->x = prey->x + array[i][0], gP->y = prey->y + array[i][1];
+ //   goalNode->pnt = gP, goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+    //printf("%d %d\n", gP->y, gP->x);
+    if(gfield[gP->x][gP->y] != -1 && (gP->y < 8 && gP->y >= 0) && (gP->x < 8 && gP->x >= 0)){
+	    goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
+	    printf("%d\n", gfield[gP->y][gP->x]);
+      int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+      if (max < value){
+	      max = value;
+	      maxIndex = i;
+    }else{
+	    break;
+    }
+    printf("%d %d\n", gP->x, gP->y);
 
-    int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
-
-    if (max < value){
-      max = value;
-      maxIndex = i;
+//    int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+//
+//    if (max < value){
+//      max = value;
+//      maxIndex = i;
     }
   }
  
@@ -286,6 +297,8 @@ void Prey(int *ca, int *action){ // int *action
   }else if(maxIndex == 3){
     *action = (int)act[0];
     printf("up\n");
+  }else{
+	  *action = (int)act[4];
   }
 
  // getchar();
