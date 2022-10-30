@@ -31,10 +31,6 @@ struct point{
   int y;
 };
 
-struct point* predatorCreatePosition(){
-  struct point* p = (struct point*)malloc(sizeof(struct point));
-  return p;
-}
 
 /* 関数の呼び出し順に宣言したいための処置 */
 int AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
@@ -76,8 +72,8 @@ int AStarAlgorithm(struct node* current, struct node* goal, struct node **openLi
 
   *closedList = (struct node*)realloc((*closedList), l2*(sizeof(struct node)));
   memcpy(&((*closedList)[l2-1]),nextNode,sizeof(struct node));
-  printf("%d\n", nextIndex);
-  printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
+  //printf("%d\n", nextIndex);
+  //printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y){
@@ -183,7 +179,7 @@ void ReconstructThePath(struct node* goalNode){
 
 
 
-void prey(int *ca){ // int *action
+void Prey(int *ca, int *action){ // int *action
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
@@ -195,8 +191,8 @@ void prey(int *ca){ // int *action
 
   
 
-  predator = predatorCreatePosition();
-  prey = predatorCreatePosition();
+  predator = (struct point*)malloc(sizeof(struct point));
+  prey = (struct point*)malloc(sizeof(struct point));
 
   for(int i = 0; i < size_1d; i++){
     p = i / size_2d;
@@ -217,8 +213,8 @@ void prey(int *ca){ // int *action
 
  
 
-  printf("predator (%d %d)\n", predator->x, predator->y);
-  printf("prey     (%d %d)\n", prey->x, prey->y);
+  //printf("predator (%d %d)\n", predator->x, predator->y);
+  //printf("prey     (%d %d)\n", prey->x, prey->y);
 
   /* スタートノードの作成 */
   struct point* sP = (struct point*)malloc(sizeof(struct point));
@@ -252,10 +248,13 @@ void prey(int *ca){ // int *action
   for(int i = 0; i < 4; i++){
     gP->x = prey->x + array[i][0],gP->y = prey->y + array[i][1];
     goalNode->pnt = gP, goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
-
+    printf("%d %d\n", gP->y, gP->x);
     if(gfield[gP->x][gP->y] == -1){
       break;
-    }
+    }if(goalNode->pnt->y > 7){break;}
+    if(goalNode->pnt->y < 0){break;}
+    if(goalNode->pnt->x > 7){break;}
+    if(goalNode->pnt->x < 0){break;}
 
     int value = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
 
@@ -273,8 +272,8 @@ void prey(int *ca){ // int *action
   // ReconstructThePath(finished);
   // printf("f = %d\n", finished->f);
   // printf("f = %2d, g = %2d, h = %2d\n", finished->f, finished->g, finished->h);
-  printf("%d %d\n", max, maxIndex);
-
+  //printf("%d %d\n", max, maxIndex);
+  printf("max=%d, maxIndex=%d\n", max, maxIndex);
   if(maxIndex == 0){
     *action = (int)act[3];
     printf("right\n");
@@ -284,33 +283,11 @@ void prey(int *ca){ // int *action
   }else if(maxIndex == 2){
     *action = (int)act[1];
     printf("down\n");
-  }else{
+  }else if(maxIndex == 3){
     *action = (int)act[0];
     printf("up\n");
   }
 
-  getchar();
+ // getchar();
   
 }
-
-
-// int main(void) {
-//   FILE *fp;	          /* file pointer */
-//   int rstat, i;		  /* fscanf return status and loop parameter */
-//   int array[64];	       /* data array */
-
-//   fp = fopen("battlefield.dat", "r"); /* open file to read */
-
-//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-//     printf("Failed file open.\n"); 
-//   } else {
-//     for(i = 0; i < 64; i++){
-//       rstat = fscanf(fp, "%d", &array[i]);
-//     }
-
-//   }
-//   fclose(fp);
-//   prey(array);
-//   return 0;
-
-// }
