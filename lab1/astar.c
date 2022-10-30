@@ -57,27 +57,31 @@ void astar(int* array){
   struct node** closedList = (struct node**)malloc(sizeof(struct node*));
   *closedList = NULL;
   *openList = (struct node*)realloc((*openList), sizeof(struct node));
-  memcpy(&((*openList)[0]), startNode, sizeof(struct node));
+  // memcpy(&((*openList)[0]), startNode, sizeof(struct node));
+  openList[0] = startNode;
   int openLen = 1;
 
   
   while(openLen > 0){
     struct node* currentNode = (struct node*)malloc(sizeof(struct node));
-    memcpy(&(*currentNode), &((*openList)[0]), sizeof(struct node));
+    // memcpy(&(*currentNode), &((*openList)[0]), sizeof(struct node));
+    currentNode = openList[0];
     printf("%d %d\n", currentNode->pnt->y, currentNode->pnt->x);
-    // openLen--;
+    openLen--;
     int currentIndex = 0;
 
     for(int i = 0; i < openLen; i++){
       struct node* tempNode = (struct node*)malloc(sizeof(struct node));
-      memcpy(&(*tempNode), &((*openList)[0]), sizeof(struct node));
+      // memcpy(&(*tempNode), &((*openList)[i]), sizeof(struct node));
+      tempNode = openList[i];
       if(tempNode->f < currentNode->f){
-        memcpy(&(*currentNode), &(*tempNode), sizeof(struc node));
+        // memcpy(&(*currentNode), &(*tempNode), sizeof(struct node));
+        currentNode = tempNode;
         int currentIndex = i;
       }
     }
 
-    
+
 
 
   }
