@@ -46,6 +46,7 @@ int preyAStarAlgorithm(struct node* current, struct node* goal, struct node **op
 
   /* オープンリストの長さを求める */
   l1 = preyExpandNode(current, openList, l1, closedList, l2);
+  printf("l1 = %d\n", l1);
 
   /* 経路コストを計算する */
   preyCalculateTheTotalCost(goal, openList, l1); //問題あり
