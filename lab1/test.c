@@ -39,11 +39,12 @@ struct point* ReconstructThePath(struct node* goalNode);
 
 /* AStarAlgorithm */
 struct point* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
+  
   int i, j, nextIndex;
 
   /* オープンリストの長さを求める */
   l1 = ExpandNode(current, openList, l1, closedList, l2);
-
+  printf("Astar\n");
   /* 経路コストを計算する */
   nextIndex = CalcCost(openList, goal, l1);
   
@@ -70,7 +71,6 @@ struct point* AStarAlgorithm(struct node* current, struct node* goal, struct nod
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y){
-    printf("%d %d\n", nextNode[-1].pnt->y, nextNode[-1].pnt->x);
     struct point *p = ReconstructThePath(nextNode);
     return p;
   }  
@@ -163,11 +163,9 @@ struct point* ReconstructThePath(struct node* goalNode){
 
 
 
-void predator(int *ca){
+void Predator(int *ca, int *action){
   
   int p, q;
-
-  
   int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
   struct point *predator = (struct point*)malloc(sizeof(struct point));
   struct point *prey = (struct point*)malloc(sizeof(struct point));
@@ -217,12 +215,8 @@ void predator(int *ca){
   // memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   (*closedList)[0] = *startNode;
   
-
- 
-
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
-  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
+
   struct point *nextPoint = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
   printf("%d %d\n", nextPoint->y, nextPoint->x);
@@ -234,29 +228,7 @@ void predator(int *ca){
       *action = (int)actStr[i];
     }
   }
-  
-  getchar();
-  
+
+
 }
 
-
-int main(void) {
-  FILE *fp;	          /* file pointer */
-  int rstat, i;		  /* fscanf return status and loop parameter */
-  int array[64];	       /* data array */
-
-  fp = fopen("battlefield.dat", "r"); /* open file to read */
-
-  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-    printf("Failed file open.\n"); 
-  } else {
-    for(i = 0; i < 64; i++){
-      rstat = fscanf(fp, "%d", &array[i]);
-    }
-
-  }
-  fclose(fp);
-  predator(array);
-  return 0;
-
-}
