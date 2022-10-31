@@ -31,10 +31,9 @@ struct predatorPoint{
 /* 関数の呼び出し順に宣言したいための処置 */
 struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
 int predatorExpandNode(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2);
-void predatorCalculateTheTotalCost(struct predatorNode* predator_goalNode, struct predatorNode **predator_openList, int predator_l1);
-int predatorFindTheLeastCosted(struct predatorNode **predator_openList, int predator_l1);
-// void ReconstructThePath(struct node* goalNode);
+int CalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1);
 struct predatorPoint* predatorReconstructThePath(struct predatorNode* predator_goalNode);
+
 
 /* AStarAlgorithm */
 struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** predator_closedList, int predator_l2){
@@ -43,9 +42,10 @@ struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_curren
   /* オープンリストの長さを求める */
   predator_l1 = predatorExpandNode(predator_current, predator_openList, predator_l1, predator_closedList, predator_l2);
   /* 経路コストを計算する */
-  predatorCalculateTheTotalCost(predator_goal, predator_openList, predator_l1); 
+  // predatorCalculateTheTotalCost(predator_goal, predator_openList, predator_l1); 
 
-  predator_nextIndex = predatorFindTheLeastCosted(predator_openList, predator_l1);
+  // predator_nextIndex = predatorFindTheLeastCosted(predator_openList, predator_l1);
+  predator_nextIndex = CalcCost(predator_openList, predator_goal, predator_l1);
   struct predatorNode *predator_nextNode = &((*predator_openList)[predator_nextIndex]);
   
   /* 次のオープンリストを作成する */
@@ -72,20 +72,20 @@ struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_curren
 int predatorExpandNode(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2){
   int predator_i, predator_j, predator_count, predator_found;
   predator_count = 0;
-  int predator_x = predator_current->predator_pnt->predator_x;
-  int predator_y = predator_current->predator_pnt->predator_y;
+  int predator_cx = predator_current->predator_pnt->predator_x; // 探索中の今現在のpredatorの座標
+  int cPredator_y = predator_current->predator_pnt->predator_y;
 
   struct predatorNode* predator_tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
    for(predator_i = 0; predator_i < 4; predator_i++){
       predator_tempList[predator_i].predator_pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      if(predator_i == 0 && predator_field[predator_x-1][predator_y] != -1)  // 左に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_x-1, predator_tempList[predator_i].predator_pnt->predator_y = predator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 3 && predator_field[predator_x+1][predator_y] != -1) // 右に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_x+1,predator_tempList[predator_i].predator_pnt->predator_y = predator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 1 && predator_field[predator_x][predator_y+1] != -1) // 下に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_x, predator_tempList[predator_i].predator_pnt->predator_y = predator_y+1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 2 && predator_field[predator_x][predator_y-1] != -1) // 上に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_x, predator_tempList[predator_i].predator_pnt->predator_y = predator_y-1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+      if(predator_i == 0 && predator_field[predator_cx-1][cPredator_y] != -1)  // 左に障害物がないか
+        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx-1, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+      else if(predator_i == 3 && predator_field[predator_cx+1][cPredator_y] != -1) // 右に障害物がないか
+        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx+1,predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+      else if(predator_i == 1 && predator_field[predator_cx][cPredator_y+1] != -1) // 下に障害物がないか
+        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y+1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+      else if(predator_i == 2 && predator_field[predator_cx][cPredator_y-1] != -1) // 上に障害物がないか
+        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y-1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
     
       predator_tempList[predator_i].predator_parent = predator_current;
    }
@@ -106,28 +106,25 @@ int predatorExpandNode(struct predatorNode* predator_current, struct predatorNod
   return predator_count + predator_l1;
 }
 
-/* CalculateTheTotalCost */
-void predatorCalculateTheTotalCost(struct predatorNode* predator_goalNode, struct predatorNode **predator_openList, int predator_l1){
+/* FindTheLeastCosted */
+int CalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1){
   int predator_i, predator_difx, predator_dify;
   for(predator_i = 0; predator_i < predator_l1; predator_i++){
     predator_difx = (*predator_openList)[predator_i].predator_pnt->predator_x - predator_goalNode->predator_pnt->predator_x;
     predator_dify = (*predator_openList)[predator_i].predator_pnt->predator_y - predator_goalNode->predator_pnt->predator_y;
     (*predator_openList)[predator_i].predator_h = ((float)sqrt(pow(predator_difx, 2) + pow(predator_dify, 2)));
   }
-}
 
-/* FindTheLeastCosted */
-int predatorFindTheLeastCosted(struct predatorNode **predator_openList, int predator_l1){
-  int predator_i, predator_min, predator_minIndex;
-    predator_min = (*predator_openList)[0].predator_g + (*predator_openList)[0].predator_h;
-    predator_minIndex = 0;
-    for(predator_i = 1; predator_i < predator_l1; predator_i++){
-      if((*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h < predator_min){
-        predator_min = (*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h;
-        predator_minIndex = predator_i;
-      } 
-    }
-    return predator_minIndex;
+  int predator_min, predator_minIndex;
+  predator_min = (*predator_openList)[0].predator_g + (*predator_openList)[0].predator_h;
+  predator_minIndex = 0;
+  for(predator_i = 1; predator_i < predator_l1; predator_i++){
+    if((*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h < predator_min){
+      predator_min = (*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h;
+      predator_minIndex = predator_i;
+    } 
+  }
+  return predator_minIndex;
 }
 
 /* ReconstructThePath */
@@ -198,8 +195,6 @@ void Predator(int *predator_ca, int *predator_action){
   for(int predator_i = 0; predator_i < 4; predator_i++){
     printf("%d %d\n", predator_point[predator_i][0], predator_point[predator_i][1]);
     if(predator_a->predator_x == predator_predator->predator_x + predator_point[predator_i][0] && predator_a->predator_y == predator_predator->predator_y + predator_point[predator_i][1]){
-      
-
       *predator_action = (int)predator_act[predator_i];
     }
   }
