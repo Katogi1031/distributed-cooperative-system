@@ -38,7 +38,7 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
 void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1);
 int FindTheLeastCosted(struct node **openList, int l1);
 int CalcCost(struct node** openList, struct node* goalNode, int l1);
-void ReconstructThePath(struct node* goalNode);
+struct point* ReconstructThePath(struct node* goalNode);
 
 /* AStarAlgorithm */
 struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
@@ -151,7 +151,7 @@ int CalcCost(struct node** openList, struct node* goalNode, int l1){
 }
 
 /* ReconstructThePath */
-void ReconstructThePath(struct node* goalNode){
+struct point* ReconstructThePath(struct node* goalNode){
   struct node* current = goalNode;
   struct point* ptr = NULL;
   int steps = 0,i;
@@ -163,13 +163,15 @@ void ReconstructThePath(struct node* goalNode){
       current = current->parent;                    
   }
   printf("%d %d\n", ptr[steps-1].y, ptr[steps-1].x);
+
+  return &ptr[steps-1];
 }
 
 
 
 
-void predator(int *ca){
-  char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
+void Predator(int *ca, int *action){
+//   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
   int field[8][8];
@@ -231,32 +233,39 @@ void predator(int *ca){
   // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
   struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
-  printf("%d %d\n", finished[-1].pnt->y, finished[-1].pnt->x);
+//   printf("%d %d\n", finished[-1].pnt->y, finished[-1].pnt->x);
 
-  ReconstructThePath(finished);
-
-  getchar();
+  struct point* arr = ReconstructThePath(finished);
+    printf("%d %d\n", arr->x, arr->y);
+    int act[4][2] = {{-1, 0}, {1 ,0}, {0, -1}, {0, 1}}; // up, down, left, right
+    char actStr[] = {'u', 'd', 'l', 'r'};
+    for(int i = 0; i < 4; i++){
+        if(act[i][0] == arr->x && act[i][1] == arr->y){
+        *action = (int)actStr[i];
+        }
+    }
+//   getchar();
   
 }
 
 
-int main(void) {
-  FILE *fp;	          /* file pointer */
-  int rstat, i;		  /* fscanf return status and loop parameter */
-  int array[64];	       /* data array */
+// int main(void) {
+//   FILE *fp;	          /* file pointer */
+//   int rstat, i;		  /* fscanf return status and loop parameter */
+//   int array[64];	       /* data array */
 
-  fp = fopen("battlefield.dat", "r"); /* open file to read */
+//   fp = fopen("battlefield.dat", "r"); /* open file to read */
 
-  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-    printf("Failed file open.\n"); 
-  } else {
-    for(i = 0; i < 64; i++){
-      rstat = fscanf(fp, "%d", &array[i]);
-    }
+//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+//     printf("Failed file open.\n"); 
+//   } else {
+//     for(i = 0; i < 64; i++){
+//       rstat = fscanf(fp, "%d", &array[i]);
+//     }
 
-  }
-  fclose(fp);
-  predator(array);
-  return 0;
+//   }
+//   fclose(fp);
+//   predator(array);
+//   return 0;
 
-}
+// }
