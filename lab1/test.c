@@ -34,6 +34,8 @@ struct point{
 /* 関数の呼び出し順に宣言したいための処置 */
 struct point* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
+int FindTheLeastCosted(struct node **array,int l1);
+void CalculateTheTotalCost(struct node* goalNode,struct node **array,int l1);
 int CalcCost(struct node** openList, struct node* goalNode, int l1);
 struct point* ReconstructThePath(struct node* goalNode);
 
@@ -44,9 +46,12 @@ struct point* AStarAlgorithm(struct node* current, struct node* goal, struct nod
 
   /* オープンリストの長さを求める */
   l1 = ExpandNode(current, openList, l1, closedList, l2);
-  printf("Astar\n");
+  printf("l1 = %d\n", l1);
+  
   /* 経路コストを計算する */
-  nextIndex = CalcCost(openList, goal, l1);
+  // nextIndex = CalcCost(openList, goal, l1);
+  CalculateTheTotalCost(goal,openList,l1);
+  nextIndex = FindTheLeastCosted(openList,l1);
   
   struct node *nextNode = &((*openList)[nextIndex]);
   
@@ -84,18 +89,19 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   count = 0;
 
   struct node* tempList = (struct node*)calloc(4, sizeof(struct node));   
-  int dx = current->pnt->x;
   int dy = current->pnt->y;
+  int dx = current->pnt->x;
+  
    for(i = 0; i < 4; i++){
       
       tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
-      if(i == 0 && gfield[dx-1][dy] != -1)  // 左に障害物がないか
-        tempList[i].pnt->x = dx-1,tempList[i].pnt->y = dy,tempList[i].g = current->g + 1;
-      else if(i == 3 && gfield[dx+1][dy] != -1) // 右に障害物がないか
-        tempList[i].pnt->x = dx+1,tempList[i].pnt->y = dy,tempList[i].g = current->g + 1;
-      else if(i == 1 && gfield[dx][dy+1] != -1) // 下に障害物がないか
+      if(i == 0 && gfield[dy-1][dx] != -1)  // 上に障害物がないか
+        tempList[i].pnt->y = dy-1,tempList[i].pnt->y = dy,tempList[i].g = current->g + 1;
+      else if(i == 3 && gfield[dy+1][dx] != -1) // 下に障害物がないか
+        tempList[i].pnt->y = dy+1,tempList[i].pnt->y = dy,tempList[i].g = current->g + 1;
+      else if(i == 1 && gfield[dy][dx+1] != -1) // 右に障害物がないか
         tempList[i].pnt->x = dx,tempList[i].pnt->y = dy+1,tempList[i].g = current->g + 1;
-      else if(i == 2 && gfield[dx][dy-1] != -1) // 上に障害物がないか
+      else if(i == 2 && gfield[dy][dx-1] != -1) // 左に障害物がないか
         tempList[i].pnt->x = dx, tempList[i].pnt->y = dy-1,tempList[i].g = current->g + 1;
     
       tempList[i].parent = current;
@@ -120,6 +126,29 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
       }      
    } 
   return count + l1;
+}
+
+void CalculateTheTotalCost(struct node* goalNode,struct node **array,int l1)
+{
+    int i,difx,dify;
+    for(i = 0;i<l1;i++)
+    {
+        difx = (*array)[i].pnt->x - goalNode->pnt->x;
+        dify = (*array)[i].pnt->y - goalNode->pnt->y;
+        (*array)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
+    }
+}
+int FindTheLeastCosted(struct node **array,int l1)
+{
+
+    int i,min,minIndex;
+    min = (*array)[0].g + (*array)[0].h;
+    minIndex = 0;
+    for(i= 1;i<l1;i++)
+    {
+        if((*array)[i].g + (*array)[i].h < min) min = (*array)[i].g + (*array)[i].h,minIndex = i;
+    }
+    return minIndex;
 }
 
 int CalcCost(struct node** openList, struct node* goalNode, int l1){
@@ -163,7 +192,7 @@ struct point* ReconstructThePath(struct node* goalNode){
 
 
 
-void Predator(int *ca, int *action){
+void Predator(int *ca){ //, int *action){
   
   int p, q;
   int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
@@ -178,10 +207,10 @@ void Predator(int *ca, int *action){
     
     switch(gfield[p][q]){
       case 1:   // predator
-        predator->x = p, predator->y = q;
+        predator->y = p, predator->x = q;
         break;
       case 10:  // prey
-        prey->x = p, prey->y = q;
+        prey->y = p, prey->x = q;
         break;
       default:
         break;
@@ -221,14 +250,34 @@ void Predator(int *ca, int *action){
   
   printf("%d %d\n", nextPoint->y, nextPoint->x);
 
-  int act[4][2] = {{-1, 0}, {1 ,0}, {0, -1}, {0, 1}}; // up, down, left, right
-  char actStr[] = {'u', 'd', 'l', 'r'};
-  for(int i = 0; i < 4; i++){
-    if(act[i][0] == nextPoint->y && act[i][1] == nextPoint->x){
-      *action = (int)actStr[i];
-    }
-  }
+  // int act[4][2] = {{-1, 0}, {1 ,0}, {0, -1}, {0, 1}}; // up, down, left, right
+  // char actStr[] = {'u', 'd', 'l', 'r'};
+  // for(int i = 0; i < 4; i++){
+  //   if(act[i][0] == nextPoint->y && act[i][1] == nextPoint->x){
+  //     *action = (int)actStr[i];
+  //   }
+  // }
 
 
 }
 
+int main(void) {
+  FILE *fp;	          /* file pointer */
+  int rstat, i;		  /* fscanf return status and loop parameter */
+  int array[64];	       /* data array */
+
+  fp = fopen("battlefield.dat", "r"); /* open file to read */
+
+  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+    printf("Failed file open.\n"); 
+  } else {
+    for(i = 0; i < 64; i++){
+      rstat = fscanf(fp, "%d", &array[i]);
+    }
+
+  }
+  fclose(fp);
+  Predator(array);
+  return 0;
+
+}
