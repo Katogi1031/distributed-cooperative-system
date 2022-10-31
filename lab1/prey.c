@@ -47,17 +47,19 @@ void ReconstructThePath(struct node* goalNode);
 int AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
   int i, j, nextIndex;
   int min;
-
+  
   
   /* オープンリストの長さを求める */
   l1 = ExpandNode(current, openList, l1, closedList, l2);
+  
   if(l1 > 100){return -1;}
   /* 経路コストを計算する */
   CalculateTheTotalCost(goal, openList, l1); 
+  // printf("test3\n");
 
   nextIndex = FindTheLeastCosted(openList,l1);
-  printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
-//   printf("%d\n", min);
+  // printf("test4\n");
+  // printf("f = %2d, g = %2d, h = %2d\n", (int)(*openList)[nextIndex].f, (int)(*openList)[nextIndex].g, (int)(*openList)[nextIndex].h);
   struct node *nextNode = &((*openList)[nextIndex]);
   
   /* 次のオープンリストを作成する */
@@ -87,22 +89,27 @@ int AStarAlgorithm(struct node* current, struct node* goal, struct node **openLi
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2){
   int i, j, count, found;
   count = 0;
+  
 
   struct node* tempList = (struct node*)calloc(4, sizeof(struct node));
+  
   for(i = 0; i < 4; i++){
-      tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
-      if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
-        tempList[i].pnt->x = current->pnt->x-1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1.0f;
-      else if(i == 3 && gfield[current->pnt->x+1][current->pnt->y] != -1) // 右に障害物がないか
-        tempList[i].pnt->x = current->pnt->x+1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1.0f;
-      else if(i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
-        tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y+1,tempList[i].g = current->g+1.0f;
-      else if(i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
-        tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y-1,tempList[i].g = current->g+1.0f;
     
+      tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
+      printf("test1\n");
+      if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1 && current->pnt->x-1 > 0)  // 左に障害物がないか
+        tempList[i].pnt->x = current->pnt->x-1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1;
+      else if(i == 3 && gfield[current->pnt->x+1][current->pnt->y] != -1 && current->pnt->x+1 < 8) // 右に障害物がないか
+        tempList[i].pnt->x = current->pnt->x+1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1;
+      else if(i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1 && current->pnt->y+1 < 8) // 下に障害物がないか
+        tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y+1,tempList[i].g = current->g+1;
+      else if(i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1 && current->pnt->y-1 > 0) // 上に障害物がないか
+        tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y-1,tempList[i].g = current->g+1;
+    printf("test2\n");
       tempList[i].parent = current;
+      
    }
-
+  
   /* 現在のノードが小ノードを持つかどうか*/
   for(j = 0; j < 4; j++){ // 空白によって出力がかわる
       found = 0;           
@@ -120,6 +127,7 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
         memcpy(&((*openList)[total-1]),&tempList[j],sizeof(struct node));              
       }      
   } 
+  free(tempList);
 
   return count + l1;
 }
@@ -178,7 +186,7 @@ void ReconstructThePath(struct node* goalNode){
 
 
 
-void prey(int *ca, int *action){
+void Prey(int *ca){ //, int *action
   char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int size_1d = 64;
   int size_2d = 8;
@@ -228,12 +236,16 @@ void prey(int *ca, int *action){
     struct node* startNode = (struct node*)malloc(sizeof(struct node));
     startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
 
-  /* ゴールノードの作成 */
-  struct point* gP = (struct point*)malloc(sizeof(struct point));
-  struct node* goalNode = (struct node*)malloc(sizeof(struct node));
+    /* ゴールノードの作成 */
+    struct point* gP = (struct point*)malloc(sizeof(struct point));
+    struct node* goalNode = (struct node*)malloc(sizeof(struct node));
 
     gP->x = prey->x + array[i][0] ,gP->y = prey->y + array[i][1];
     goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+
+    if(gfield[gP->x][gP->y == -1] || gP->x > 8 || gP->x < 0 || gP->y > 8 || gP->y < 0){
+      continue;
+    }
 
     /* オープンリストの作成 */
     struct node **openList = (struct node**)malloc(sizeof(struct node*));
@@ -258,8 +270,8 @@ void prey(int *ca, int *action){
     free(goalNode);
     free(openList);
     free(closedList);
-    // free(sP);
-    // free(gP);
+    free(sP);
+    free(gP);
 
 
   }
@@ -272,23 +284,23 @@ void prey(int *ca, int *action){
 }
 
 
-// int main(void) {
-//   FILE *fp;	          /* file pointer */
-//   int rstat, i;		  /* fscanf return status and loop parameter */
-//   int array[64];	       /* data array */
+int main(void) {
+  FILE *fp;	          /* file pointer */
+  int rstat, i;		  /* fscanf return status and loop parameter */
+  int array[64];	       /* data array */
 
-//   fp = fopen("battlefield.dat", "r"); /* open file to read */
+  fp = fopen("battlefield.dat", "r"); /* open file to read */
 
-//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
-//     printf("Failed file open.\n"); 
-//   } else {
-//     for(i = 0; i < 64; i++){
-//       rstat = fscanf(fp, "%d", &array[i]);
-//     }
+  if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+    printf("Failed file open.\n"); 
+  } else {
+    for(i = 0; i < 64; i++){
+      rstat = fscanf(fp, "%d", &array[i]);
+    }
 
-//   }
-//   fclose(fp);
-//   prey(array);
-//   return 0;
+  }
+  fclose(fp);
+  Prey(array);
+  return 0;
 
-// }
+}
