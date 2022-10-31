@@ -60,8 +60,8 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   struct node *tempList = (struct node*)calloc(l1-1, sizeof(struct node));
   for(i = 0,j=0;i<l1;i++){
     if(i != nextIndex){
-      // memcpy(&tempList[j],&((*openList)[i]),sizeof(struct node));
-      tempList[j] = (*openList)[i];
+      memcpy(&tempList[j],&((*openList)[i]),sizeof(struct node));
+      // tempList[j] = (*openList)[i];
       j++;
     } 
   }
@@ -72,8 +72,8 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
 
   /* クローズドノードに追加していく */
   *closedList = (struct node*)realloc((*closedList), l2*(sizeof(struct node)));
-  // memcpy(&((*closedList)[l2-1]),nextNode,sizeof(struct node));
-  (*closedList)[l2-1] = *nextNode;
+  memcpy(&((*closedList)[l2-1]),nextNode,sizeof(struct node));
+  // (*closedList)[l2-1] = *nextNode;
 
   // printf("%d %d\n", nextNode[0].pnt->y, nextNode[0].pnt->x);
 
@@ -120,8 +120,8 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
         count++;
         int total = (l1+count);
         *openList = (struct node*)realloc((*openList),total*(sizeof(struct node)));
-        // memcpy(&((*openList)[total-1]),&tempList[j],sizeof(struct node)); 
-        (*openList)[total-1] = tempList[j];
+        memcpy(&((*openList)[total-1]),&tempList[j],sizeof(struct node)); 
+        // (*openList)[total-1] = tempList[j];
       }      
    } 
   return count + l1;
@@ -158,8 +158,8 @@ struct point* ReconstructThePath(struct node* goalNode){
   while(current->parent != NULL){
       steps++;
       ptr = (struct point*)realloc(ptr,steps*sizeof(struct point));
-      // memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
-      ptr[steps-1] = *current->pnt;
+      memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
+      // ptr[steps-1] = *current->pnt;
       current = current->parent;                    
   }
   printf("%d %d\n", ptr[steps-1].y, ptr[steps-1].x);
@@ -223,8 +223,8 @@ void Predator(int *ca, int *action){
   *closedList = NULL;
 
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
-  // memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
-  (*closedList)[0] = *startNode;
+  memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
+  // (*closedList)[0] = *startNode;
   
 
  
@@ -244,7 +244,7 @@ void Predator(int *ca, int *action){
         *action = (int)actStr[i];
         }
     }
-//   getchar();
+  // getchar();
   
 }
 
@@ -265,7 +265,7 @@ void Predator(int *ca, int *action){
 
 //   }
 //   fclose(fp);
-//   predator(array);
+//   Predator(array);
 //   return 0;
 
 // }
