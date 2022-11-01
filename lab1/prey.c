@@ -123,24 +123,44 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   return count + l1;
 }
 
-int CalcCost(struct node **openList, struct node* goalNode, int l1){
+// int CalcCost(struct node **openList, struct node* goalNode, int l1){
 
-  int i,difx,dify;
+//   int i,difx,dify;
+//   for(i = 0; i < l1; i++){
+//     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+//     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+//     (*openList)[i].h = ((int)difx*difx + dify*dify);
+//   }
+//   int min, minIndex;
+//     min = (*openList)[0].g + (*openList)[0].h;
+//     minIndex = 0;
+//     for(i = 1; i < l1; i++){
+//       if((*openList)[i].g + (*openList)[i].h < min){
+//         min = (*openList)[i].g + (*openList)[i].h;
+//         minIndex = i;
+//       } 
+//     }
+//     return minIndex;
+// }
+
+int CalcCost(struct node **openList, struct node* goalNode, int l1){
+  int i, difx, dify;
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
+    (*openList)[i].h = (int)(difx*difx + dify*dify);
   }
+
   int min, minIndex;
-    min = (*openList)[0].g + (*openList)[0].h;
-    minIndex = 0;
-    for(i = 1; i < l1; i++){
-      if((*openList)[i].g + (*openList)[i].h < min){
-        min = (*openList)[i].g + (*openList)[i].h;
-        minIndex = i;
-      } 
-    }
-    return minIndex;
+  min = (*openList)[0].g + (*openList)[0].h;
+  minIndex = 0;
+  for(i = 1; i < l1; i++){
+    if((*openList)[i].g + (*openList)[i].h < min){
+      min = (*openList)[i].g + (*openList)[i].h;
+      minIndex = i;
+    } 
+  }
+  return minIndex;
 }
 
 
