@@ -21,8 +21,8 @@ int gfield[8][8];
 struct node{
   struct point* pnt;
   struct node* parent;
-  int g;
-  int h;
+  float g;
+  float h;
   // float f;
 };
 
@@ -133,7 +133,7 @@ void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-    (*openList)[i].h = (int)(difx*difx + dify*dify); //((float)sqrt(pow(difx,2) + pow(dify,2)));
+    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
   }
 }
 
@@ -152,7 +152,6 @@ int FindTheLeastCosted(struct node **openList, int l1){
 }
 
 /* ReconstructThePath */
-// void ReconstructThePath(struct node* goalNode){
 struct point* ReconstructThePath(struct node* goalNode){
   struct node* current = goalNode;
   struct point* ptr = NULL;
@@ -163,12 +162,6 @@ struct point* ReconstructThePath(struct node* goalNode){
       memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
       current = current->parent;                    
   }
-  printf("%d", steps);
-  // for(i = steps; i >= 1; i--){
-  //   printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
-  //   if(i>1)  printf("=>");  
-  // }
-  printf("\n");
   return &ptr[steps-1];
 }
 
@@ -228,8 +221,7 @@ void Predator(int *ca, int *action){
   *closedList = NULL;
 
   (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
-//   memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
-    *closedList[0] = *startNode;
+  memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
   
 
  
@@ -255,3 +247,25 @@ void Predator(int *ca, int *action){
   printf("%d\n", *action);
   
 }
+
+
+// int main(void) {
+//   FILE *fp;	          /* file pointer */
+//   int rstat, i;		  /* fscanf return status and loop parameter */
+//   int array[64];	       /* data array */
+
+//   fp = fopen("battlefield.dat", "r"); /* open file to read */
+
+//   if (fp == NULL) {                    /* if fp is NULL, it means open file failed */
+//     printf("Failed file open.\n"); 
+//   } else {
+//     for(i = 0; i < 64; i++){
+//       rstat = fscanf(fp, "%d", &array[i]);
+//     }
+
+//   }
+//   fclose(fp);
+//   predator(array);
+//   return 0;
+
+// }

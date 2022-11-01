@@ -123,32 +123,30 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   return count + l1;
 }
 
-// int CalcCost(struct node **openList, struct node* goalNode, int l1){
+#define E 0.000001 
 
-//   int i,difx,dify;
-//   for(i = 0; i < l1; i++){
-//     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
-//     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-//     (*openList)[i].h = ((int)difx*difx + dify*dify);
-//   }
-//   int min, minIndex;
-//     min = (*openList)[0].g + (*openList)[0].h;
-//     minIndex = 0;
-//     for(i = 1; i < l1; i++){
-//       if((*openList)[i].g + (*openList)[i].h < min){
-//         min = (*openList)[i].g + (*openList)[i].h;
-//         minIndex = i;
-//       } 
-//     }
-//     return minIndex;
-// }
+double my_sqrt(double a)
+{
+    a = a < 0 ? -a : a;
+    double x = a / 2;
+    while (1) {
+		double e = x * x - a;
+		double t = e < 0 ? -e : e;
+        if (t < E) return x;
+        x -= e / (x * 2);
+    }
+}
 
 int CalcCost(struct node **openList, struct node* goalNode, int l1){
   int i, difx, dify;
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-    (*openList)[i].h = (int)(difx*difx + dify*dify);
+
+    
+    
+    
+    (*openList)[i].h = ((int)my_sqrt(difx*difx+dify*dify)); //((int)sqrt(pow(difx,2) + pow(dify,2)));
   }
 
   int min, minIndex;
@@ -179,12 +177,14 @@ struct point* ReconstructThePath(struct node* goalNode){
   return &ptr[1];
 }
 
+
 int flag(int x, int y){
   if(gfield[x][y] != -1 && x < 8 && x >= 0 && y < 8 && y >= 0){
       return 1;
     }
   return -1;
 }
+
 
 
 void Prey(int *ca, int *action){
