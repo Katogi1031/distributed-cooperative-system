@@ -33,10 +33,6 @@ struct point{
   int y;
 };
 
-struct point* predatorCreatePosition(){
-  struct point* p = (struct point*)malloc(sizeof(struct point));
-  return p;
-}
 
 /* 関数の呼び出し順に宣言したいための処置 */
 struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
@@ -202,12 +198,6 @@ struct point* ReconstructThePath(struct node* goalNode){
       memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
       current = current->parent;                    
   }
-  // printf("%d", steps);
-  // for(i = steps; i >= 1; i--){
-  //   printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
-  //   if(i>1)  printf("=>");  
-  // }
-  // printf("\n");
   return &ptr[1];
 }
 
@@ -220,21 +210,15 @@ int flag(int x, int y){
 
 
 void Prey(int *ca, int *action){
-  
-  int size_1d = 64;
-  int size_2d = 8;
-  int field[8][8];
+
   int p, q;
 
-  struct point *predator, *prey;
-  int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
+  struct point *predator = (struct point*)malloc(sizeof(struct point));
+  struct point *prey = (struct point*)malloc(sizeof(struct point));
 
-  predator = predatorCreatePosition();
-  prey = predatorCreatePosition();
-
-  for(int i = 0; i < size_1d; i++){
-    p = i / size_2d;
-    q = i % size_2d;
+  for(int i = 0; i < 64; i++){
+    p = i / 8;
+    q = i % 8;
 
     gfield[p][q] = ca[i];
     
@@ -278,7 +262,6 @@ void Prey(int *ca, int *action){
  
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  // struct node* finished = AStarAlgorithm(startNode, goalNode, openList, openLen, closedList, closedLen);
   struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
   
   struct point* a = ReconstructThePath(finished);
