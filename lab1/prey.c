@@ -37,8 +37,6 @@ struct point{
 /* 関数の呼び出し順に宣言したいための処置 */
 struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
-void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1);
-int FindTheLeastCosted(struct node **openList, int l1);
 int CalcCost(struct node **openList, struct node* goalNode, int l1);
 // void ReconstructThePath(struct node* goalNode);
 struct point* ReconstructThePath(struct node* goalNode);
@@ -126,12 +124,7 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
 }
 
 int CalcCost(struct node **openList, struct node* goalNode, int l1){
-  // int i, difx, dify, min, minIndex;
-  // for(i = 0; i < l1; i++){
-  //   difx = (*openList)[i].pnt->x - goalNode->pnt->x;
-  //   dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-  //   (*openList)[i].h = (int)(difx*difx - dify*dify);
-  // }
+
   int i,difx,dify;
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
@@ -148,43 +141,8 @@ int CalcCost(struct node **openList, struct node* goalNode, int l1){
       } 
     }
     return minIndex;
-  // min = (*openList)[0].g + (*openList)[0].h;
-  // (*openList)[0].f = min;
-  // minIndex = 0;
-  // for(i = 1; i < l1; i++){
-  //   (*openList)[i].f = (*openList)[i].g + (*openList)[i].h;
-  //   if((*openList)[i].f < min){
-  //     min = (*openList)[i].f;
-  //     minIndex = i;
-  //   }
-    
-  // }
-  // return minIndex;
 }
 
-/* CalculateTheTotalCost */
-void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1){
-  int i,difx,dify;
-  for(i = 0; i < l1; i++){
-    difx = (*openList)[i].pnt->x - goalNode->pnt->x;
-    dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
-  }
-}
-
-/* FindTheLeastCosted */
-int FindTheLeastCosted(struct node **openList, int l1){
-  int i, min, minIndex;
-    min = (*openList)[0].g + (*openList)[0].h;
-    minIndex = 0;
-    for(i = 1; i < l1; i++){
-      if((*openList)[i].g + (*openList)[i].h < min){
-        min = (*openList)[i].g + (*openList)[i].h;
-        minIndex = i;
-      } 
-    }
-    return minIndex;
-}
 
 /* ReconstructThePath */
 // void ReconstructThePath(struct node* goalNode){
