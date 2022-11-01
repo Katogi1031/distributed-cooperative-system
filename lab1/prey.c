@@ -23,9 +23,9 @@ int gfield[8][8];
 struct node{
   struct point* pnt;
   struct node* parent;
-  float g;
-  float h;
-  //int f;
+  int g;
+  int h;
+  int f;
 };
 
 struct point{
@@ -255,13 +255,13 @@ void Prey(int *ca, int *action){
   struct point* sP = (struct point*)malloc(sizeof(struct point));
   sP->x = predator->x,sP->y = predator->y;
   struct node* startNode = (struct node*)malloc(sizeof(struct node));
-  startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
+  startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0, startNode->f=0;
   
   /* ゴールノードの作成 */
   struct point* gP = (struct point*)malloc(sizeof(struct point));
     gP->x = prey->x, gP->y = prey->y;
     struct node* goalNode = (struct node*)malloc(sizeof(struct node));
-    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,startNode->h=0;
+    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,goalNode->h=0, goalNode->f=0;
 
   /* オープンリストの作成 */
   struct node **openList = (struct node**)malloc(sizeof(struct node*));
