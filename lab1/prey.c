@@ -41,6 +41,8 @@ struct point* predatorCreatePosition(){
 /* 関数の呼び出し順に宣言したいための処置 */
 struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
 int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
+void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1);
+int FindTheLeastCosted(struct node **openList, int l1);
 int CalcCost(struct node **openList, struct node* goalNode, int l1);
 // void ReconstructThePath(struct node* goalNode);
 struct point* ReconstructThePath(struct node* goalNode);
@@ -53,6 +55,9 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
   l1 = ExpandNode(current, openList, l1, closedList, l2);
 
   /* 経路コストを計算する */
+  // CalculateTheTotalCost(goal, openList, l1); //問題あり
+
+  // nextIndex = FindTheLeastCosted(openList,l1);
   nextIndex = CalcCost(openList, goal, l1);
   
   struct node *nextNode = &((*openList)[nextIndex]);
@@ -124,33 +129,69 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   return count + l1;
 }
 
-
-
 int CalcCost(struct node **openList, struct node* goalNode, int l1){
-  int i, difx, dify, min, minIndex;
+  // int i, difx, dify, min, minIndex;
+  // for(i = 0; i < l1; i++){
+  //   difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+  //   dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+  //   (*openList)[i].h = (int)(difx*difx - dify*dify);
+  // }
+  int i,difx,dify;
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
-    (*openList)[i].h = (int)(difx*difx + dify*dify);
+    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
   }
-  
-  min = (*openList)[0].g + (*openList)[0].h;
-  (*openList)[0].f = min;
-  minIndex = 0;
-  for(i = 1; i < l1; i++){
-    (*openList)[i].f = (*openList)[i].g + (*openList)[i].h;
-    if((*openList)[i].f < min){
-      min = (*openList)[i].g + (*openList)[i].h;
-      minIndex = i;
-    } 
-  }
-  return minIndex;
-
+  int min, minIndex;
+    min = (*openList)[0].g + (*openList)[0].h;
+    minIndex = 0;
+    for(i = 1; i < l1; i++){
+      if((*openList)[i].g + (*openList)[i].h < min){
+        min = (*openList)[i].g + (*openList)[i].h;
+        minIndex = i;
+      } 
+    }
+    return minIndex;
+  // min = (*openList)[0].g + (*openList)[0].h;
+  // (*openList)[0].f = min;
+  // minIndex = 0;
+  // for(i = 1; i < l1; i++){
+  //   (*openList)[i].f = (*openList)[i].g + (*openList)[i].h;
+  //   if((*openList)[i].f < min){
+  //     min = (*openList)[i].f;
+  //     minIndex = i;
+  //   }
+    
+  // }
+  // return minIndex;
 }
 
+/* CalculateTheTotalCost */
+void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1){
+  int i,difx,dify;
+  for(i = 0; i < l1; i++){
+    difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+    dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+    (*openList)[i].h = ((float)sqrt(pow(difx,2) + pow(dify,2)));
+  }
+}
 
+/* FindTheLeastCosted */
+int FindTheLeastCosted(struct node **openList, int l1){
+  int i, min, minIndex;
+    min = (*openList)[0].g + (*openList)[0].h;
+    minIndex = 0;
+    for(i = 1; i < l1; i++){
+      if((*openList)[i].g + (*openList)[i].h < min){
+        min = (*openList)[i].g + (*openList)[i].h;
+        minIndex = i;
+      } 
+    }
+    return minIndex;
+}
 
 /* ReconstructThePath */
+// void ReconstructThePath(struct node* goalNode){
 struct point* ReconstructThePath(struct node* goalNode){
   struct node* current = goalNode;
   struct point* ptr = NULL;
@@ -161,6 +202,12 @@ struct point* ReconstructThePath(struct node* goalNode){
       memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
       current = current->parent;                    
   }
+  // printf("%d", steps);
+  // for(i = steps; i >= 1; i--){
+  //   printf("(%d,%d)",ptr[i-1].x,ptr[i-1].y);
+  //   if(i>1)  printf("=>");  
+  // }
+  // printf("\n");
   return &ptr[1];
 }
 
@@ -176,10 +223,14 @@ void Prey(int *ca, int *action){
   
   int size_1d = 64;
   int size_2d = 8;
+  int field[8][8];
   int p, q;
 
-  struct point* predator = (struct point*)malloc(sizeof(struct point));
-  struct point* prey = (struct point*)malloc(sizeof(struct point));
+  struct point *predator, *prey;
+  int openLen = 0, closedLen = 0; // オープンリスト、クローズリストの長さ
+
+  predator = predatorCreatePosition();
+  prey = predatorCreatePosition();
 
   for(int i = 0; i < size_1d; i++){
     p = i / size_2d;
