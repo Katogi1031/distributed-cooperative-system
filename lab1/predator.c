@@ -14,6 +14,7 @@ Description : Using the A* algorithm, find the shortest distance between Predato
 #include <stdlib.h>
 #include <string.h>
 
+#define predator_E 0.000001 // ニュートン法
 int predator_field[8][8];
 
 struct predatorNode{
@@ -27,6 +28,19 @@ struct predatorPoint{
   int predator_x;
   int predator_y;
 };
+
+
+double predator_sqrt(double predator_a)
+{
+    predator_a = predator_a < 0 ? -predator_a : predator_a;
+    double predator_x = predator_a / 2;
+    while (1) {
+      double predator_e = predator_x * predator_x - predator_a;
+      predator_e = predator_e < 0 ? -predator_e : predator_e;
+      if (predator_e < predator_E) return predator_x;
+      predator_x -= predator_e / (predator_x * 2);
+    }
+}
 
 /* 関数の呼び出し順に宣言したいための処置 */
 struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
@@ -74,13 +88,13 @@ int predatorExpandNode(struct predatorNode* predator_current, struct predatorNod
   struct predatorNode* predator_tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
    for(predator_i = 0; predator_i < 4; predator_i++){
       predator_tempList[predator_i].predator_pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      if(predator_i == 0 && predator_field[predator_cx-1][cPredator_y] != -1)  // 左に障害物がないか
+      if(predator_i == 0 && predator_field[predator_cx-1][cPredator_y] != -1)  // 上に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_cx-1, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 3 && predator_field[predator_cx+1][cPredator_y] != -1) // 右に障害物がないか
+      else if(predator_i == 3 && predator_field[predator_cx+1][cPredator_y] != -1) // 下に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_cx+1,predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 1 && predator_field[predator_cx][cPredator_y+1] != -1) // 下に障害物がないか
+      else if(predator_i == 1 && predator_field[predator_cx][cPredator_y+1] != -1) // 右に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y+1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 2 && predator_field[predator_cx][cPredator_y-1] != -1) // 上に障害物がないか
+      else if(predator_i == 2 && predator_field[predator_cx][cPredator_y-1] != -1) // 左に障害物がないか
         predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y-1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
     
       predator_tempList[predator_i].predator_parent = predator_current;
@@ -101,25 +115,14 @@ int predatorExpandNode(struct predatorNode* predator_current, struct predatorNod
    } 
   return predator_count + predator_l1;
 }
-#define E 0.000001 
-double predator_sqrt(double a)
-{
-    a = a < 0 ? -a : a;
-    double x = a / 2;
-    while (1) {
-		double e = x * x - a;
-		double t = e < 0 ? -e : e;
-        if (t < E) return x;
-        x -= e / (x * 2);
-    }
-}
+
 /* CalcCost */
 int predatorCalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1){
   int predator_i, predator_difx, predator_dify;
   for(predator_i = 0; predator_i < predator_l1; predator_i++){
     predator_difx = (*predator_openList)[predator_i].predator_pnt->predator_x - predator_goalNode->predator_pnt->predator_x;
     predator_dify = (*predator_openList)[predator_i].predator_pnt->predator_y - predator_goalNode->predator_pnt->predator_y;
-    (*predator_openList)[predator_i].predator_h = ((int)predator_sqrt(predator_difx*predator_difx+predator_dify*predator_dify)); //(int)sqrt(pow(predator_difx, 2) + pow(predator_dify, 2)); //(int)(predator_difx*predator_difx + predator_dify*predator_dify);
+    (*predator_openList)[predator_i].predator_h = ((int)predator_sqrt(predator_difx*predator_difx+predator_dify*predator_dify));
   }
 
   int predator_min, predator_minIndex;
