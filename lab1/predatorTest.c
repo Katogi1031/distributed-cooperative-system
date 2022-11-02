@@ -125,7 +125,19 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
   return count + l1;
 }
 
+#define E 0.000001 
 
+double my_sqrt(double a)
+{
+    a = a < 0 ? -a : a;
+    double x = a / 2;
+    while (1) {
+		double e = x * x - a;
+		double t = e < 0 ? -e : e;
+        if (t < E) return x;
+        x -= e / (x * 2);
+    }
+}
 
 /* CalculateTheTotalCost */
 void CalculateTheTotalCost(struct node* goalNode, struct node **openList, int l1){

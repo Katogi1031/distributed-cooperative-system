@@ -18,7 +18,7 @@ Description : Using the A* algorithm, find the shortest distance between Predato
 #include <time.h>
 
 
-int gfield[8][8];
+int prey_field[8][8];
 #define E 0.000001 
 
 
@@ -34,7 +34,7 @@ struct point{
   int y;
 };
 
-double my_sqrt(double a)
+double preySqrt(double a)
 {
     a = a < 0 ? -a : a;
     double x = a / 2;
@@ -46,22 +46,23 @@ double my_sqrt(double a)
     }
 }
 
+// prey_
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
-int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
-int CalcCost(struct node **openList, struct node* goalNode, int l1);
-struct point* ReconstructThePath(struct node* goalNode);
+struct node* preyAStar(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2);
+int preySearch(struct node* current, struct node **openList, int l1, struct node **closedList, int l2);
+int preyCalcCost(struct node **openList, struct node* goalNode, int l1);
+struct point* preyRetrace(struct node* goalNode);
 
 /* AStarAlgorithm */
-struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
+struct node* preyAStar(struct node* current, struct node* goal, struct node **openList, int l1, struct node** closedList, int l2){
   int i, j, nextIndex;
 
   /* オープンリストの長さを求める */
-  l1 = ExpandNode(current, openList, l1, closedList, l2);
+  l1 = preySearch(current, openList, l1, closedList, l2);
 
   /* 経路コストを計算する */
-  nextIndex = CalcCost(openList, goal, l1);
+  nextIndex = preyCalcCost(openList, goal, l1);
   
   struct node *nextNode = &((*openList)[nextIndex]);
   
@@ -82,12 +83,12 @@ struct node* AStarAlgorithm(struct node* current, struct node* goal, struct node
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
-  return AStarAlgorithm(nextNode, goal, openList, l1, closedList, l2);
+  return preyAStar(nextNode, goal, openList, l1, closedList, l2);
 
 }
 
-/* ExpandNode */
-int ExpandNode(struct node* current, struct node **openList, int l1, struct node **closedList, int l2){
+/* preySearch */
+int preySearch(struct node* current, struct node **openList, int l1, struct node **closedList, int l2){
   int i, j, count, found;
   count = 0;
 
@@ -95,13 +96,13 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
    tempList = (struct node*)calloc(4,sizeof(struct node));   
    for(i = 0;i<4;i++){
       tempList[i].pnt = (struct point*)malloc(sizeof(struct point));
-      if(i == 0 && gfield[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
+      if(i == 0 && prey_field[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
         tempList[i].pnt->x = current->pnt->x-1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1;
-      else if(i == 3 && gfield[current->pnt->x+1][current->pnt->y] != -1) // 右に障害物がないか
+      else if(i == 3 && prey_field[current->pnt->x+1][current->pnt->y] != -1) // 右に障害物がないか
         tempList[i].pnt->x = current->pnt->x+1,tempList[i].pnt->y = current->pnt->y,tempList[i].g = current->g+1;
-      else if(i == 1 && gfield[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
+      else if(i == 1 && prey_field[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
         tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y+1,tempList[i].g = current->g+1;
-      else if(i == 2 && gfield[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
+      else if(i == 2 && prey_field[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
         tempList[i].pnt->x = current->pnt->x,tempList[i].pnt->y = current->pnt->y-1,tempList[i].g = current->g+1;
     
       tempList[i].parent = current;
@@ -128,121 +129,121 @@ int ExpandNode(struct node* current, struct node **openList, int l1, struct node
 
 
 
-int CalcCost(struct node **openList, struct node* goalNode, int l1){
-  int i, difx, dify;
-  for(i = 0; i < l1; i++){
-    difx = (*openList)[i].pnt->x - goalNode->pnt->x;
-    dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+int preyCalcCost(struct node **prey_openList, struct node* prey_goalNode, int prey_l1){
+  int prey_i, prey_difx, prey_dify;
+  for(prey_i = 0; prey_i < prey_l1; prey_i++){
+    prey_difx = (*prey_openList)[prey_i].pnt->x - prey_goalNode->pnt->x;
+    prey_dify = (*prey_openList)[prey_i].pnt->y - prey_goalNode->pnt->y;
     
-    (*openList)[i].h = ((int)my_sqrt(difx*difx+dify*dify));
+    (*prey_openList)[prey_i].h = ((int)preySqrt(prey_difx * prey_difx + prey_dify * prey_dify));
   }
 
-  int min, minIndex = 0;
-  min = (*openList)[0].g + (*openList)[0].h;
-  for(i = 1; i < l1; i++){
-    if((*openList)[i].g + (*openList)[i].h < min){
-      min = (*openList)[i].g + (*openList)[i].h;
-      minIndex = i;
+  int prey_min, prey_minIndex = 0;
+  prey_min = (*prey_openList)[0].g + (*prey_openList)[0].h;
+  for(prey_i = 1; prey_i < prey_l1; prey_i++){
+    if((*prey_openList)[prey_i].g + (*prey_openList)[prey_i].h < prey_min){
+      prey_min = (*prey_openList)[prey_i].g + (*prey_openList)[prey_i].h;
+      prey_minIndex = prey_i;
     } 
   }
-  return minIndex;
+  return prey_minIndex;
 }
 
 /* ReconstructThePath */
-struct point* ReconstructThePath(struct node* goalNode){
-  struct node* current = goalNode;
-  struct point* ptr = NULL;
-  int steps = 0,i;
-  while(current->parent != NULL){
-      steps++;
-      ptr = (struct point*)realloc(ptr,steps*sizeof(struct point));
-      memcpy(&ptr[steps-1],current->pnt,sizeof(struct point));
-      current = current->parent;                    
+struct point* preyRetrace(struct node* prey_goalNode){
+  struct node* prey_current = prey_goalNode;
+  struct point* prey_ptr = NULL;
+  int prey_steps = 0, prey_i;
+  while(prey_current->parent != NULL){
+      prey_steps++;
+      prey_ptr = (struct point*)realloc(prey_ptr, prey_steps*sizeof(struct point));
+      memcpy(&prey_ptr[prey_steps-1], prey_current->pnt, sizeof(struct point));
+      prey_current = prey_current->parent;                    
   }
-  return &ptr[1];
+  return &prey_ptr[1];
 }
 
-int flag(int x, int y){
-  if(gfield[x][y] != -1 && x < 8 && x >= 0 && y < 8 && y >= 0){
+int preyFlag(int prey_x, int prey_y){
+  if(prey_field[prey_x][prey_y] != -1 && prey_x < 8 && prey_x >= 0 && prey_y < 8 && prey_y >= 0){
       return 1;
     }
   return -1;
 }
 
-void Prey(int *ca, int *action){
-  int p, q;
+void Prey(int *prey_ca, int *prey_action){
+  int prey_p, prey_q, prey_i;
 
-  struct point *predator = (struct point*)malloc(sizeof(struct point));
-  struct point *prey = (struct point*)malloc(sizeof(struct point));
+  struct point *prey_predator = (struct point*)malloc(sizeof(struct point));
+  struct point *prey_prey = (struct point*)malloc(sizeof(struct point));
 
-  for(int i = 0; i < 64; i++){
-    p = i / 8;
-    q = i % 8;
+  for(prey_i = 0; prey_i < 64; prey_i++){
+    prey_p = prey_i / 8;
+    prey_q = prey_i % 8;
 
-    gfield[p][q] = ca[i];
+    prey_field[prey_p][prey_q] = prey_ca[prey_i];
     
-    switch(gfield[p][q]){
+    switch(prey_field[prey_p][prey_q]){
       case 1:   // predator
-        predator->x = p, predator->y = q;
+        prey_predator->x = prey_p, prey_predator->y = prey_q;
         break;
       case 10:  // prey
-        prey->x = p, prey->y = q;
+        prey_prey->x = prey_p, prey_prey->y = prey_q;
         break;
     }
   }
 
   /* スタートノードの作成 */
-  struct point* sP = (struct point*)malloc(sizeof(struct point));
-  sP->x = predator->x,sP->y = predator->y;
-  struct node* startNode = (struct node*)malloc(sizeof(struct node));
-  startNode->pnt = sP,startNode->parent = NULL,startNode->g=0;startNode->h=0;
+  struct point* prey_sP = (struct point*)malloc(sizeof(struct point));
+  prey_sP->x = prey_predator->x, prey_sP->y = prey_predator->y;
+  struct node* prey_startNode = (struct node*)malloc(sizeof(struct node));
+  prey_startNode->pnt = prey_sP, prey_startNode->parent = NULL, prey_startNode->g=0, prey_startNode->h=0;
   
   /* ゴールノードの作成 */
-  struct point* gP = (struct point*)malloc(sizeof(struct point));
-    gP->x = prey->x, gP->y = prey->y;
-    struct node* goalNode = (struct node*)malloc(sizeof(struct node));
-    goalNode->pnt = gP,goalNode->parent = NULL,goalNode->g=0,goalNode->h=0;
+  struct point* prey_gP = (struct point*)malloc(sizeof(struct point));
+    prey_gP->x = prey_prey->x, prey_gP->y = prey_prey->y;
+    struct node* prey_goalNode = (struct node*)malloc(sizeof(struct node));
+    prey_goalNode->pnt = prey_gP, prey_goalNode->parent = NULL, prey_goalNode->g=0, prey_goalNode->h=0;
 
   /* オープンリストの作成 */
-  struct node **openList = (struct node**)malloc(sizeof(struct node*));
-  *openList = NULL;
+  struct node **prey_openList = (struct node**)malloc(sizeof(struct node*));
+  *prey_openList = NULL;
 
   /* クローズリストの作成 */
-  struct node **closedList = (struct node**)malloc(sizeof(struct node*));
-  *closedList = NULL;
+  struct node **prey_closedList = (struct node**)malloc(sizeof(struct node*));
+  *prey_closedList = NULL;
 
-  (*closedList) = (struct node*)realloc((*closedList),sizeof(struct node));
-  memcpy(&((*closedList)[0]),startNode,sizeof(struct node));
+  (*prey_closedList) = (struct node*)realloc((*prey_closedList), sizeof(struct node));
+  memcpy(&((*prey_closedList)[0]), prey_startNode, sizeof(struct node));
   
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  struct node* finished = AStarAlgorithm(startNode, goalNode, openList, 0, closedList, 1);
-  struct point* a = ReconstructThePath(finished);
+  struct node* prey_finished = preyAStar(prey_startNode, prey_goalNode, prey_openList, 0, prey_closedList, 1);
+  struct point* prey_a = preyRetrace(prey_finished);
 
-  int nextX = prey->x + prey->x - a->x;
-  int nextY = prey->y + prey->y - a->y;
-  int nextActX = prey->x - a->x;
-  int nextActY = prey->y - a->y;
-  char nextOpe[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
-  int actPoint[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right
-  int r, f, i;
+  int prey_nextX = prey_prey->x + prey_prey->x - prey_a->x;
+  int prey_nextY = prey_prey->y + prey_prey->y - prey_a->y;
+  int prey_nextActX = prey_prey->x - prey_a->x;
+  int prey_nextActY = prey_prey->y - prey_a->y;
+  char prey_nextOpe[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
+  int prey_actPoint[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right
+  int prey_r, prey_f;
   
-  for(i = 0; i < 4; i++){
-    if(nextActX == actPoint[i][0] && nextActY == actPoint[i][1]){
-      f = flag(nextX, nextY);
+  for(prey_i = 0; prey_i < 4; prey_i++){
+    if(prey_nextActX == prey_actPoint[prey_i][0] && prey_nextActY == prey_actPoint[prey_i][1]){
+      prey_f = preyFlag(prey_nextX, prey_nextY);
       break;
     }
   }
-  if(f == 1){
-    *action = (int)(nextOpe[i]);
+  if(prey_f == 1){
+    *prey_action = (int)(prey_nextOpe[prey_i]);
   }else{
     srand(100);
-    if(nextActY != 0){ 
-      r = rand() % 2;
-      *action = (int)(nextOpe[r]);
+    if(prey_nextActY != 0){ 
+      prey_r = rand() % 2;
+      *prey_action = (int)(prey_nextOpe[prey_r]);
     }else{
-      r = 2 + rand() % 2;
-      *action = (int)(nextOpe[r]);
+      prey_r = 2 + rand() % 2;
+      *prey_action = (int)(prey_nextOpe[prey_r]);
     }
   }
 }
