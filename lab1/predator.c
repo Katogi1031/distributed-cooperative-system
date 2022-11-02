@@ -2,7 +2,7 @@
 Author : Atsuya Katogi
 Student ID: b1020003
 Class : K
-Created October 25, 2022
+Created November 2, 2022
 Language : C
 
 Function : predator(int *ca, int action)
@@ -43,17 +43,17 @@ double predator_sqrt(double predator_a)
 }
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
-int predatorExpandNode(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2);
+struct predatorNode* predatorAStar(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
+int predatorSearch(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2);
 int predatorCalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1);
-struct predatorPoint* predatorReconstructThePath(struct predatorNode* predator_goalNode);
+struct predatorPoint* predatorRetrace(struct predatorNode* predator_goalNode);
 
 /* AStarAlgorithm */
-struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** predator_closedList, int predator_l2){
+struct predatorNode* predatorAStar(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** predator_closedList, int predator_l2){
   int predator_i, predator_j, predator_nextIndex;
 
   /* オープンリストの長さを求める */
-  predator_l1 = predatorExpandNode(predator_current, predator_openList, predator_l1, predator_closedList, predator_l2);
+  predator_l1 = predatorSearch(predator_current, predator_openList, predator_l1, predator_closedList, predator_l2);
   /* 経路コストを計算する */
   predator_nextIndex = predatorCalcCost(predator_openList, predator_goal, predator_l1);
   struct predatorNode *predator_nextNode = &((*predator_openList)[predator_nextIndex]);
@@ -75,11 +75,11 @@ struct predatorNode* predatorAStarAlgorithm(struct predatorNode* predator_curren
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(predator_nextNode->predator_pnt->predator_x == predator_goal->predator_pnt->predator_x && predator_nextNode->predator_pnt->predator_y == predator_goal->predator_pnt->predator_y)  return predator_nextNode;
-  return predatorAStarAlgorithm(predator_nextNode, predator_goal, predator_openList, predator_l1, predator_closedList, predator_l2);
+  return predatorAStar(predator_nextNode, predator_goal, predator_openList, predator_l1, predator_closedList, predator_l2);
 }
 
 /* ExpandNode */
-int predatorExpandNode(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2){
+int predatorSearch(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2){
   int predator_i, predator_j, predator_count, predator_found;
   predator_count = 0;
   int predator_cx = predator_current->predator_pnt->predator_x; // 探索中の今現在のpredatorの座標
@@ -137,8 +137,8 @@ int predatorCalcCost(struct predatorNode **predator_openList, struct predatorNod
   return predator_minIndex;
 }
 
-/* ReconstructThePath */
-struct predatorPoint* predatorReconstructThePath(struct predatorNode* predator_goalNode){
+/* Retrace */
+struct predatorPoint* predatorRetrace(struct predatorNode* predator_goalNode){
   struct predatorNode* predator_current = predator_goalNode;
   struct predatorPoint* predator_ptr = NULL;
   int predator_steps = 0, predator_i;
@@ -196,8 +196,8 @@ void Predator(int *predator_ca, int *predator_action){
   memcpy(&((*predator_closedList)[0]), predator_startNode, sizeof(struct predatorNode));
   
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  struct predatorNode* predator_finished = predatorAStarAlgorithm(predator_startNode, predator_goalNode, predator_openList, 0, predator_closedList, 1);
-  struct predatorPoint* predator_a = predatorReconstructThePath(predator_finished);
+  struct predatorNode* predator_finished = predatorAStar(predator_startNode, predator_goalNode, predator_openList, 0, predator_closedList, 1);
+  struct predatorPoint* predator_a = predatorRetrace(predator_finished);
 
   char predator_act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
   int predator_point[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
