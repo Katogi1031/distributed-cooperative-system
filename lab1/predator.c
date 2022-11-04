@@ -14,196 +14,196 @@ Description : Using the A* algorithm, find the shortest distance between Predato
 #include <stdlib.h>
 #include <string.h>
 
-#define predator_E 0.000001 // ニュートン法
+#define E 0.000001 // ニュートン法
 int predator_field[8][8];
 
 struct predatorNode{
-  struct predatorPoint* predator_pnt;
-  struct predatorNode* predator_parent;
-  int predator_g;
-  int predator_h;
+  struct predatorPoint* pnt;
+  struct predatorNode* parent;
+  int g;
+  int h;
 };
 
 struct predatorPoint{
-  int predator_x;
-  int predator_y;
+  int x;
+  int y;
 };
 
 
-double predator_sqrt(double predator_a)
+double predatorSqrt(double a)
 {
-    predator_a = predator_a < 0 ? -predator_a : predator_a;
-    double predator_x = predator_a / 2;
+    a = a < 0 ? -a : a;
+    double x = a / 2;
     while (1) {
-      double predator_e = predator_x * predator_x - predator_a;
-      predator_e = predator_e < 0 ? -predator_e : predator_e;
-      if (predator_e < predator_E) return predator_x;
-      predator_x -= predator_e / (predator_x * 2);
+      double e = x * x - a;
+      e = e < 0 ? -e : e;
+      if (e < E) return x;
+      x -= e / (x * 2);
     }
 }
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct predatorNode* predatorAStar(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** cpredator_losedList, int predator_l2);
-int predatorSearch(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2);
-int predatorCalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1);
-struct predatorPoint* predatorRetrace(struct predatorNode* predator_goalNode);
+struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
+int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
+int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
+struct predatorPoint* predatorRetrace(struct predatorNode* goalNode);
 
 /* AStarAlgorithm */
-struct predatorNode* predatorAStar(struct predatorNode* predator_current, struct predatorNode* predator_goal, struct predatorNode **predator_openList, int predator_l1, struct predatorNode** predator_closedList, int predator_l2){
-  int predator_i, predator_j, predator_nextIndex;
+struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** closedList, int l2){
+  int i, j, nextIndex;
 
   /* オープンリストの長さを求める */
-  predator_l1 = predatorSearch(predator_current, predator_openList, predator_l1, predator_closedList, predator_l2);
+  l1 = predatorSearch(current, openList, l1, closedList, l2);
   /* 経路コストを計算する */
-  predator_nextIndex = predatorCalcCost(predator_openList, predator_goal, predator_l1);
-  struct predatorNode *predator_nextNode = &((*predator_openList)[predator_nextIndex]);
+  nextIndex = predatorCalcCost(openList, goal, l1);
+  struct predatorNode *nextNode = &((*openList)[nextIndex]);
   
   /* 次のオープンリストを作成する */
-  struct predatorNode *predator_tempList = (struct predatorNode*)calloc(predator_l1-1, sizeof(struct predatorNode));
-  for(predator_i = 0, predator_j=0; predator_i < predator_l1; predator_i++){
-    if(predator_i != predator_nextIndex){
-      memcpy(&predator_tempList[predator_j], &((*predator_openList)[predator_i]), sizeof(struct predatorNode));
-      predator_j++;
+  struct predatorNode *tempList = (struct predatorNode*)calloc(l1-1, sizeof(struct predatorNode));
+  for(i = 0, j=0; i < l1; i++){
+    if(i != nextIndex){
+      memcpy(&tempList[j], &((*openList)[i]), sizeof(struct predatorNode));
+      j++;
     } 
   }
-  predator_l1--, predator_l2++;
-  *predator_openList = predator_tempList;
+  l1--, l2++;
+  *openList = tempList;
 
   /* クローズドノードに追加していく */
-  *predator_closedList = (struct predatorNode*)realloc((*predator_closedList), predator_l2*(sizeof(struct predatorNode)));
-  memcpy(&((*predator_closedList)[predator_l2-1]), predator_nextNode, sizeof(struct predatorNode));
+  *closedList = (struct predatorNode*)realloc((*closedList), l2*(sizeof(struct predatorNode)));
+  memcpy(&((*closedList)[l2-1]), nextNode, sizeof(struct predatorNode));
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
-  if(predator_nextNode->predator_pnt->predator_x == predator_goal->predator_pnt->predator_x && predator_nextNode->predator_pnt->predator_y == predator_goal->predator_pnt->predator_y)  return predator_nextNode;
-  return predatorAStar(predator_nextNode, predator_goal, predator_openList, predator_l1, predator_closedList, predator_l2);
+  if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
+  return predatorAStar(nextNode, goal, openList, l1, closedList, l2);
 }
 
 /* ExpandNode */
-int predatorSearch(struct predatorNode* predator_current, struct predatorNode **predator_openList, int predator_l1, struct predatorNode **predator_closedList, int predator_l2){
-  int predator_i, predator_j, predator_count, predator_found;
-  predator_count = 0;
-  int predator_cx = predator_current->predator_pnt->predator_x; // 探索中の今現在のpredatorの座標
-  int cPredator_y = predator_current->predator_pnt->predator_y;
+int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2){
+  int i, j, count, found;
+  count = 0;
 
-  struct predatorNode* predator_tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
-   for(predator_i = 0; predator_i < 4; predator_i++){
-      predator_tempList[predator_i].predator_pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      if(predator_i == 0 && predator_field[predator_cx-1][cPredator_y] != -1)  // 上に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx-1, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 3 && predator_field[predator_cx+1][cPredator_y] != -1) // 下に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx+1,predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 1 && predator_field[predator_cx][cPredator_y+1] != -1) // 右に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y+1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
-      else if(predator_i == 2 && predator_field[predator_cx][cPredator_y-1] != -1) // 左に障害物がないか
-        predator_tempList[predator_i].predator_pnt->predator_x = predator_cx, predator_tempList[predator_i].predator_pnt->predator_y = cPredator_y-1, predator_tempList[predator_i].predator_g = predator_current->predator_g+1.0f;
+  struct predatorNode* tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
+   for(i = 0; i < 4; i++){
+      tempList[i].pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+      if(i == 0 && predator_field[current->pnt->x-1][current->pnt->y] != -1)  // 上に障害物がないか
+        tempList[i].pnt->x = current->pnt->x-1, tempList[i].pnt->y = current->pnt->y, tempList[i].g = current->g+1.0f;
+      else if(i == 3 && predator_field[current->pnt->x+1][current->pnt->y] != -1) // 下に障害物がないか
+        tempList[i].pnt->x = current->pnt->x+1,tempList[i].pnt->y = current->pnt->y, tempList[i].g = current->g+1.0f;
+      else if(i == 1 && predator_field[current->pnt->x][current->pnt->y+1] != -1) // 右に障害物がないか
+        tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y+1, tempList[i].g = current->g+1.0f;
+      else if(i == 2 && predator_field[current->pnt->x][current->pnt->y-1] != -1) // 左に障害物がないか
+        tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y-1, tempList[i].g = current->g+1.0f;
     
-      predator_tempList[predator_i].predator_parent = predator_current;
+      tempList[i].parent = current;
    }
 
   /* 現在のノードが小ノードを持つかどうか*/
-  for(predator_j = 0; predator_j < 4; predator_j++){
-      predator_found = 0;           
-      if(predator_tempList[predator_j].predator_parent == NULL) return 0;
-      for(predator_i = 0; predator_i < predator_l1; predator_i++) if((*predator_openList)[predator_i].predator_pnt->predator_x == predator_tempList[predator_j].predator_pnt->predator_x && (*predator_openList)[predator_i].predator_pnt->predator_y == predator_tempList[predator_j].predator_pnt->predator_y) predator_found++;
-      for(predator_i = 0; predator_i < predator_l2; predator_i++) if(predator_tempList[predator_j].predator_pnt->predator_x == (*predator_closedList)[predator_i].predator_pnt->predator_x && (*predator_closedList)[predator_i].predator_pnt->predator_y == predator_tempList[predator_j].predator_pnt->predator_y) predator_found++; 
-      if(predator_found == 0){
-        predator_count++;
-        int predator_total = predator_l1 + predator_count;
-        *predator_openList = (struct predatorNode*)realloc((*predator_openList), predator_total*(sizeof(struct predatorNode)));
-        memcpy(&((*predator_openList)[predator_total-1]), &predator_tempList[predator_j],sizeof(struct predatorNode));              
+  for(j = 0; j < 4; j++){
+      found = 0;           
+      if(tempList[j].parent == NULL) return 0;
+      for(i = 0; i < l1; i++) if((*openList)[i].pnt->x == tempList[j].pnt->x && (*openList)[i].pnt->y == tempList[j].pnt->y) found++;
+      for(i = 0; i < l2; i++) if(tempList[j].pnt->x == (*closedList)[i].pnt->x && (*closedList)[i].pnt->y == tempList[j].pnt->y) found++; 
+      if(found == 0){
+        count++;
+        int total = l1 + count;
+        *openList = (struct predatorNode*)realloc((*openList), total*(sizeof(struct predatorNode)));
+        memcpy(&((*openList)[total-1]), &tempList[j],sizeof(struct predatorNode));              
       }      
    } 
-  return predator_count + predator_l1;
+  return count + l1;
 }
 
 /* CalcCost */
-int predatorCalcCost(struct predatorNode **predator_openList, struct predatorNode* predator_goalNode, int predator_l1){
-  int predator_i, predator_difx, predator_dify;
-  for(predator_i = 0; predator_i < predator_l1; predator_i++){
-    predator_difx = (*predator_openList)[predator_i].predator_pnt->predator_x - predator_goalNode->predator_pnt->predator_x;
-    predator_dify = (*predator_openList)[predator_i].predator_pnt->predator_y - predator_goalNode->predator_pnt->predator_y;
-    (*predator_openList)[predator_i].predator_h = ((int)predator_sqrt(predator_difx*predator_difx+predator_dify*predator_dify));
+int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1){
+  int i, difx, dify;
+  for(i = 0; i < l1; i++){
+    difx = (*openList)[i].pnt->x - goalNode->pnt->x;
+    dify = (*openList)[i].pnt->y - goalNode->pnt->y;
+    (*openList)[i].h = ((int)predatorSqrt(difx * difx + dify * dify));
   }
 
-  int predator_min, predator_minIndex;
-  predator_min = (*predator_openList)[0].predator_g + (*predator_openList)[0].predator_h;
-  predator_minIndex = 0;
-  for(predator_i = 1; predator_i < predator_l1; predator_i++){
-    if((*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h < predator_min){
-      predator_min = (*predator_openList)[predator_i].predator_g + (*predator_openList)[predator_i].predator_h;
-      predator_minIndex = predator_i;
+  int min, minIndex;
+  min = (*openList)[0].g + (*openList)[0].h;
+  minIndex = 0;
+  for(i = 1; i < l1; i++){
+    if((*openList)[i].g + (*openList)[i].h < min){
+      min = (*openList)[i].g + (*openList)[i].h;
+      minIndex = i;
     } 
   }
-  return predator_minIndex;
+  return minIndex;
 }
 
 /* Retrace */
-struct predatorPoint* predatorRetrace(struct predatorNode* predator_goalNode){
-  struct predatorNode* predator_current = predator_goalNode;
-  struct predatorPoint* predator_ptr = NULL;
-  int predator_steps = 0, predator_i;
-  while(predator_current->predator_parent != NULL){
-      predator_steps++;
-      predator_ptr = (struct predatorPoint*)realloc(predator_ptr, predator_steps*sizeof(struct predatorPoint));
-      memcpy(&predator_ptr[predator_steps-1], predator_current->predator_pnt, sizeof(struct predatorPoint));
-      predator_current = predator_current->predator_parent;                    
+struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
+  struct predatorNode* current = goalNode;
+  struct predatorPoint* ptr = NULL;
+  int steps = 0, i;
+  while(current->parent != NULL){
+      steps++;
+      ptr = (struct predatorPoint*)realloc(ptr, steps*sizeof(struct predatorPoint));
+      memcpy(&ptr[steps-1], current->pnt, sizeof(struct predatorPoint));
+      current = current->parent;                    
   }
-  return &predator_ptr[predator_steps-1];
+  return &ptr[steps-1];
 }
 
-void Predator(int *predator_ca, int *predator_action){
-  int predator_p, predator_q;
-  struct predatorPoint *predator_predator = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-  struct predatorPoint *predator_prey = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+void Predator(int *ca, int *action){
+  int p, q;
+  struct predatorPoint *predator = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  struct predatorPoint *prey = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
 
-  for(int predator_i = 0; predator_i < 64; predator_i++){
-    predator_p = predator_i / 8;
-    predator_q = predator_i % 8;
+  for(int i = 0; i < 64; i++){
+    p = i / 8;
+    q = i % 8;
 
-    predator_field[predator_p][predator_q] = predator_ca[predator_i];
+    predator_field[p][q] = ca[i];
     
-    switch(predator_field[predator_p][predator_q]){
+    switch(predator_field[p][q]){
       case 1:   // predator
-        predator_predator->predator_x = predator_p, predator_predator->predator_y = predator_q;
+        predator->x = p, predator->y = q;
         break;
       case 10:  // prey
-        predator_prey->predator_x = predator_p, predator_prey->predator_y = predator_q;
+        prey->x = p, prey->y = q;
         break;
     }
   }
 
   /* スタートノードの作成 */
-  struct predatorPoint* predator_sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-  predator_sP->predator_x = predator_predator->predator_x, predator_sP->predator_y = predator_predator->predator_y;
-  struct predatorNode* predator_startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-  predator_startNode->predator_pnt = predator_sP, predator_startNode->predator_parent = NULL, predator_startNode->predator_g=0, predator_startNode->predator_h=0;
+  struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  sP->x = predator->x, sP->y = predator->y;
+  struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
   
   /* ゴールノードの作成 */
-  struct predatorPoint* predator_gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-  predator_gP->predator_x = predator_prey->predator_x, predator_gP->predator_y = predator_prey->predator_y;
-  struct predatorNode* predator_goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-  predator_goalNode->predator_pnt = predator_gP, predator_goalNode->predator_parent = NULL, predator_goalNode->predator_g=0, predator_startNode->predator_h=0;
+  struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  gP->x = prey->x, gP->y = prey->y;
+  struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, startNode->h=0;
 
   /* オープンリストの作成 */
-  struct predatorNode **predator_openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-  *predator_openList = NULL;
+  struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *openList = NULL;
 
   /* クローズリストの作成 */
-  struct predatorNode **predator_closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-  *predator_closedList = NULL;
+  struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *closedList = NULL;
 
-  (*predator_closedList) = (struct predatorNode*)realloc((*predator_closedList),sizeof(struct predatorNode));
-  memcpy(&((*predator_closedList)[0]), predator_startNode, sizeof(struct predatorNode));
+  (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+  memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
   
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  struct predatorNode* predator_finished = predatorAStar(predator_startNode, predator_goalNode, predator_openList, 0, predator_closedList, 1);
-  struct predatorPoint* predator_a = predatorRetrace(predator_finished);
+  struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+  /*  */
+  struct predatorPoint* a = predatorRetrace(finished);
 
-  char predator_act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
-  int predator_point[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-  for(int predator_i = 0; predator_i < 4; predator_i++){
-    if(predator_a->predator_x == predator_predator->predator_x + predator_point[predator_i][0] && predator_a->predator_y == predator_predator->predator_y + predator_point[predator_i][1]){
-      *predator_action = (int)predator_act[predator_i];
+  char act[] = {'u', 'd', 'l', 'r', 's'}; // up, down, left, right, stay
+  int point[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+  for(int i = 0; i < 4; i++){
+    /* */
+    if(a->x == predator->x + point[i][0] && a->y == predator->y + point[i][1]){
+      *action = (int)act[i];
     }
   }
 }
