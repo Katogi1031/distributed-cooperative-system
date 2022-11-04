@@ -18,10 +18,10 @@ Description : Find the shortest path from the A* algorithm and go in the opposit
 #include <time.h>
 
 
-int prey_field[8][8];
-#define E 0.000001 
+#define E 0.000001 // ニュートン法で求める際の閾値
+int prey_field[8][8]; // フィールド情報を持つグローバルな配列
 
-
+// 親ノードや座標、移動コストを持つ構造体
 struct preyNode{
   struct preyPoint* pnt;
   struct preyNode* parent;
@@ -29,11 +29,13 @@ struct preyNode{
   int h;
 };
 
+// 座標の構造体
 struct preyPoint{
   int x;
   int y;
 };
 
+// ニュートン法を用いてルートの近似値を求める
 double preySqrt(double a)
 {
     a = a < 0 ? -a : a;
@@ -55,6 +57,7 @@ int preyCalcCost(struct preyNode **openList, struct preyNode* goalNode, int l1);
 struct preyPoint* preyRetrace(struct preyNode* goalNode);
 
 /* AStarAlgorithm */
+/* A*アルゴリズムを用いてスタートノードからゴールノードまでの最短距離を求める */
 struct preyNode* preyAStar(struct preyNode* current, struct preyNode* goal, struct preyNode **openList, int l1, struct preyNode** closedList, int l2){
   int i, j, nextIndex;
 
@@ -87,11 +90,13 @@ struct preyNode* preyAStar(struct preyNode* current, struct preyNode* goal, stru
 
 }
 
-/* preySearch */
+/* predatorSearch */
+/* 現在地から移動可能なノードを拡張する */
 int preySearch(struct preyNode* current, struct preyNode **openList, int l1, struct preyNode **closedList, int l2){
   int i, j, count, found;
   count = 0;
 
+  // ４方向のうち、移動可能なノードを拡張する
   struct preyNode* tempList;
    tempList = (struct preyNode*)calloc(4, sizeof(struct preyNode));   
    for(i = 0; i < 4; i++){
@@ -108,7 +113,7 @@ int preySearch(struct preyNode* current, struct preyNode **openList, int l1, str
       tempList[i].parent = current;
    }
 
-  /* 現在のノードが子ノードを持つかどうか*/
+   /* 拡張したノードががオープンリスト、クローズドリストになければ追加する*/
   for(j = 0; j < 4; j++){
       found = 0;           
       if(tempList[j].parent == NULL){
@@ -128,13 +133,17 @@ int preySearch(struct preyNode* current, struct preyNode **openList, int l1, str
 }
 
 
-
+/* CalcCost */
+/* 現在地からゴールノードまでの仮に見積もった距離を算出する
+   オープンリスト内にあるノード全てと現在地までの総移動コストを求め、そのノードのインデックスを求める
+ */
 int preyCalcCost(struct preyNode **openList, struct preyNode* goalNode, int l1){
   int i, difx, dify;
   for(i = 0; i < l1; i++){
     difx = (*openList)[i].pnt->x - goalNode->pnt->x;
     dify = (*openList)[i].pnt->y - goalNode->pnt->y;
     
+    // 三平方の定理(現在地からゴールノードまでの仮に見積もった距離)
     (*openList)[i].h = ((int)preySqrt(difx * difx + dify * dify));
   }
 
@@ -149,7 +158,8 @@ int preyCalcCost(struct preyNode **openList, struct preyNode* goalNode, int l1){
   return minIndex;
 }
 
-/* ReconstructThePath */
+/* Retrace */
+/* ゴールノードから現在地に至るまでのノードに遡り、現在地から次に移動するノードを求める */
 struct preyPoint* preyRetrace(struct preyNode* goalNode){
   struct preyNode* current = goalNode;
   struct preyPoint* ptr = NULL;
