@@ -101,13 +101,13 @@ int preySearch(struct preyNode* current, struct preyNode **openList, int l1, str
    tempList = (struct preyNode*)calloc(4, sizeof(struct preyNode));   
    for(i = 0; i < 4; i++){
       tempList[i].pnt = (struct preyPoint*)malloc(sizeof(struct preyPoint));
-      if(i == 0 && prey_field[current->pnt->x-1][current->pnt->y] != -1)  // 左に障害物がないか
+      if(i == 0 && prey_field[current->pnt->x-1][current->pnt->y] != -1)  // 上に障害物がないか
         tempList[i].pnt->x = current->pnt->x-1, tempList[i].pnt->y = current->pnt->y, tempList[i].g = current->g+1;
-      else if(i == 3 && prey_field[current->pnt->x+1][current->pnt->y] != -1) // 右に障害物がないか
+      else if(i == 3 && prey_field[current->pnt->x+1][current->pnt->y] != -1) // 下に障害物がないか
         tempList[i].pnt->x = current->pnt->x+1, tempList[i].pnt->y = current->pnt->y, tempList[i].g = current->g+1;
-      else if(i == 1 && prey_field[current->pnt->x][current->pnt->y+1] != -1) // 下に障害物がないか
+      else if(i == 1 && prey_field[current->pnt->x][current->pnt->y+1] != -1) // 右に障害物がないか
         tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y+1, tempList[i].g = current->g+1;
-      else if(i == 2 && prey_field[current->pnt->x][current->pnt->y-1] != -1) // 上に障害物がないか
+      else if(i == 2 && prey_field[current->pnt->x][current->pnt->y-1] != -1) // 左に障害物がないか
         tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y-1, tempList[i].g = current->g+1;
     
       tempList[i].parent = current;
