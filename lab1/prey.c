@@ -18,7 +18,7 @@ Description : Find the shortest path from the A* algorithm and go in the opposit
 #include <time.h>
 
 
-#define E 0.000001 // ニュートン法で求める際の閾値
+#define prey_E 0.000001 // ニュートン法で求める際の閾値
 int prey_field[8][8]; // フィールド情報を持つグローバルな配列
 
 // 親ノードや座標、移動コストを持つ構造体
@@ -43,7 +43,7 @@ double preySqrt(double a)
     while (1) {
 		double e = x * x - a;
     e = e < 0 ? -e : e;
-        if (e < E) return x;
+        if (e < prey_E) return x;
         x -= e / (x * 2);
     }
 }

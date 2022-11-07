@@ -14,7 +14,7 @@ Description : Using the A* algorithm, find the shortest distance between Predato
 #include <stdlib.h>
 #include <string.h>
 
-#define E 0.000001 // ニュートン法で求める際の閾値
+#define predator_E 0.000001 // ニュートン法で求める際の閾値
 int predator_field[8][8]; // フィールド情報を持つグローバルな配列
 
 // 親ノードや座標、移動コストを持つ構造体
@@ -39,7 +39,7 @@ double predatorSqrt(double a)
     while (1) {
       double e = x * x - a;
       e = e < 0 ? -e : e;
-      if (e < E) return x;
+      if (e < predator_E) return x;
       x -= e / (x * 2);
     }
 }
