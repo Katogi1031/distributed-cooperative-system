@@ -14,7 +14,6 @@
  * Load libralies (stdio.h, stdlib.h, time.h)
  *
  */
-
 #ifndef STDIO_H
 #define STDIO_H
 #include <stdio.h>
