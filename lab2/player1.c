@@ -48,6 +48,7 @@ int decision(int player1, int player2) {
 Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
     // static int array1[10];
     static int i = 0;
+	static int cnt = 0;
     // array1[i] = i;
     // i++;
     // int num = sizeof(array1);
@@ -63,7 +64,12 @@ Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPl
         printf("player2 action 1\n");
     }else{
         int num = decision(previousPlayer1Strategy, previousPlayer2Strategy);
-        printf("player1 action %d\n", num);
+        printf("player1 action %d, cnt=%d\n", num, cnt);
         *currentPlayer1Strategy = num;
     }
+
+	if(*currentPlayer1Strategy == 1){
+		cnt++;
+	}
+
 }
