@@ -2,52 +2,57 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define COOPERATE 0
-#define BETRAY 1
+Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
+}
 
-int main(int argc, char** argv) {
-  // シミュレーションの回数
-  int num_iterations = 100;
-  // 自分と相手のスコア
-  int my_score = 0, opponent_score = 0;
-  // 乱数の種
-  srand(time(NULL));
+int main(){
+    int my_score = 0; // 自分のスコア
+    int opponent_score = 0; // 相手のスコア
+    int choice; // 自分の選択
+    int opponent_choice; // 相手の選択
+    int cooperations = 0; // 相手の協力の回数
+    int defections = 0; // 相手の裏切りの回数
+    int previous_opponent_choice = -1; // 相手の直近の行動
 
-  for (int i = 0; i < num_iterations; i++) {
-    // 今回の行動を決定する
-    int my_action;
-    if (my_score - opponent_score > 0) {
-      // 自分のスコアが高ければ、自分は裏切りをする
-      my_action = BETRAY;
-    } else {
-      // 自分のスコアが低ければ、自分は協調をする
-      my_action = COOPERATE;
+    // 乱数の種を設定
+    srand((unsigned)time(NULL));
+
+    // 反復囚人のジレンマゲームを200回実施
+    for (int i = 0; i < 200; i++){
+        // 相手の戦略を予測する
+        if (previous_opponent_choice == 0){
+						cooperations += 2;
+        }
+        else if (previous_opponent_choice == 1){
+            defections += 2;
+        }
+
+        if(cooperations > defections){
+            opponent_choice = 0;
+        }
+        else{
+            opponent_choice = 1;
+        }
+
+        // 自分が相手の予想を満たすように、選択を行う
+        choice = opponent_choice;
+
+        // 選択に応じて、スコアを更新
+        if (choice == 0){
+            my_score += 3;
+            opponent_score += 3;
+        }
+        else if (choice == 1){
+            my_score += 5;
+            opponent_score += 0;
+        }
+
+        // 相手の直近の行動を記録
+        previous_opponent_choice = opponent_choice;
     }
-    // 相手の行動を決定する
-    int opponent_action = rand() % 2;
-    // スコアを計算する
-    if (my_action == COOPERATE && opponent_action == COOPERATE) {
-      // 両者とも協調した場合
-      my_score += 2;
-      opponent_score += 2;
-    } else if (my_action == COOPERATE && opponent_action == BETRAY) {
-      // 自分は協調したが、相手は裏切りした場合
-      my_score -= 1;
-      opponent_score += 3;
-    } else if (my_action == BETRAY && opponent_action == COOPERATE) {
-      // 自分は裏切りしたが、相手は協調した場合
-      my_score += 3;
-      opponent_score -= 1;
-    } else {
-      // 両者とも裏切りした場合
-      my_score += 1;
-      opponent_score += 1;
-    }
-  }
 
-  // 最終的なスコアを表示する
-  printf("My score: %d\n", my_score);
-  printf("Opponent score: %d\n", opponent_score);
+    printf("自分のスコア: %d\n", my_score);
+    printf("相手のスコア: %d\n", opponent_score);
 
-  return 0;
+    return 0;
 }
