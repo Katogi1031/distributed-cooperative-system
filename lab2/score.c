@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
+Player2(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
     static int player1_score = 0;
     static int player2_score = 0;
 

@@ -17,6 +17,7 @@ int player1_scores(int player1Strategy, int player2Strategy) {
 // プレイヤーが選択する戦略を決定する
 int player1_get_action(int player1Strategy, int player2Strategy) {
 	int score = player1_scores(player1Strategy, player2Strategy);
+	printf("score %d\n", score);
 	int strategy = 0;
 	if (score > 3) {	// 3より大きい場合は協調する
 		strategy = 1;
@@ -26,11 +27,11 @@ int player1_get_action(int player1Strategy, int player2Strategy) {
 	return strategy;
 }
 
-Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
+Player2(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
     if(previousPlayer1Strategy == -1){
         *currentPlayer1Strategy = 1;
         printf("player2 action 1\n");
     }else{
-        *currentPlayer1Strategy = player1_get_action(previousPlayer1Strategy, previousPlayer2Strategy);
+        *currentPlayer1Strategy = player1_get_action(previousPlayer2Strategy, previousPlayer1Strategy);
     }
 }

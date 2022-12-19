@@ -18,6 +18,8 @@ int player2_get_action(int player1Strategy, int player2Strategy) {
     // 囚人のジレンマをフェルマーの未定乗数法で解く
     int x, y;
     player2_maximize(3 * x + y, 3 * y + x, &x, &y);
+     printf("x = %d, y = %d\n", exp1, exp2);
+    
     if(x >= 1) x = 1;
     if(y >= 1) y = 1;
     // プレイヤー1が実際に取るべきアクション
