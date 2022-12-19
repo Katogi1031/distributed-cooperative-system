@@ -3,15 +3,17 @@
 #include <time.h>
 
 Player1(int previousPlayer1Strategy, int previousPlayer2Strategy, int *currentPlayer1Strategy){
+  int player2_choice;   // 相手の選択
+  static int cooperations = 0; // 相手の協力の回数
+  static int deception = 0;    // 相手の裏切りの回数
+
 }
 
 int main(){
     int my_score = 0; // 自分のスコア
     int opponent_score = 0; // 相手のスコア
     int choice; // 自分の選択
-    int opponent_choice; // 相手の選択
-    int cooperations = 0; // 相手の協力の回数
-    int defections = 0; // 相手の裏切りの回数
+    
     int previous_opponent_choice = -1; // 相手の直近の行動
 
     // 乱数の種を設定
