@@ -18,7 +18,7 @@ static int map[16][16] = {{-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10
 
 // 16x16のマップを4x4のマップで表現
 // 要素の値は未踏(mapで-10)の個数を表現
-int quarterMap[4][4];
+int oneEighthMap[4];
 
 
 void MapUpdate(int field[16][16]){
@@ -37,10 +37,21 @@ void UnreachableMap(){
     for(i = 0; i < 16; i++){
         cnt = 0;
         for(j = 0; j < 16; j++){
-            p = i / 4;
-            q = j / 4;
-            if(map[i][j] == -10) quarterMap[p][q]+=1;
-            // quarterMap[p][q] = cnt;
+            p = i / 8;
+            q = j / 8;
+            if(p == 0){
+                if(q == 0){
+                    if(map[i][j] == -10) oneEighthMap[0]+=1;
+                }else if(q == 1){
+                    if(map[i][j] == -10) oneEighthMap[1]+=1;
+                }
+            }else if(p == 1){
+                if(q == 0){
+                    if(map[i][j] == -10) oneEighthMap[2]+=1;
+                }else  if(q == 1){
+                    if(map[i][j] == -10) oneEighthMap[3]+=1;
+                }
+            }
         }
         
         
@@ -50,11 +61,9 @@ void UnreachableMap(){
 
 void Predator(int field1[16][16], int field2[16][16], int field3[16][16], int field4[16][16], int *point1, int *point2, int *point3, int *point4){
 
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            quarterMap[i][j] = 0;
-        }
-    }
+    // oneEightthMapの初期化
+    for(int i = 0; i < 4; i++)
+       oneEighthMap[i] = 0;
 
     // 各predatorの視界からマップを更新
     MapUpdate(field1);
@@ -73,12 +82,9 @@ void Predator(int field1[16][16], int field2[16][16], int field3[16][16], int fi
         printf("\n");
     }
 
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            printf("%4d", quarterMap[i][j]);
-        }
-        printf("\n");
-    }
+    for(int i = 0; i < 4; i++)
+        printf("%d ", oneEighthMap[i]);
+    printf("\n");
 
     // predatorの行動戦略を取得
     Predator1(field1, point1);
@@ -106,7 +112,16 @@ void Predator1(int* field, int* point){
     int quarterX =posX / 4;
     int quarterY = posY / 4;
 
-    printf("%d, %d\n", quarterX, quarterY);
+    printf("%d, %d\n", quarterY, quarterX);
+
+    int max = 64, maxIndex;
+
+    // 最も未開の地が占めるところが多いところを求める
+    for(i = 0; i < 4; i++)
+        if(oneEighthMap[i] >= max) max = oneEighthMap[i];
+        maxIndex = i;
+    
+
     
 
     // 最も近い未踏の地を計算
