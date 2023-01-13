@@ -32,11 +32,11 @@ void Prey(int field[16][16], int *point){
 
     PreyMapUpdate(field);
     
-    for(int i = 0; i < 16; i++){
-        for(int j = 0; j < 16; j++){
-            printf("%4d", PreyMap[i][j]);
-        }
-        printf("\n");
-    }
+    // for(int i = 0; i < 16; i++){
+    //     for(int j = 0; j < 16; j++){
+    //         printf("%4d", PreyMap[i][j]);
+    //     }
+    //     printf("\n");
+    // }
 
 }
