@@ -99,7 +99,7 @@ int predatorSearch(struct predatorNode* current, struct predatorNode **openList,
         tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y+1, tempList[i].g = current->g+1;
       else if(i == 2 && predator_field[current->pnt->x][current->pnt->y-1] != -1) // 左に障害物がないか
         tempList[i].pnt->x = current->pnt->x, tempList[i].pnt->y = current->pnt->y-1, tempList[i].g = current->g+1;
-    
+
       tempList[i].parent = current;
    }
 
