@@ -116,7 +116,7 @@ void Predator4(int* field, int* point){
 
     
 int RightHandRule(int posY, int posX){
-    char array[4] = {'t', 'b', 'l', 'r'};
+    char array[4] = {'t', 'd', 'l', 'r'};
     // 右方向に行けるなら
     // その場所に障害物がない、かつ、フィールド内であること
     printf("%d %d\n", posY, posX);
