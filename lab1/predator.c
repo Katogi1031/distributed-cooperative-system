@@ -178,6 +178,7 @@ void Predator(int *ca, int *action){
       case 10:  // preyの位置を求める
         prey->x = p, prey->y = q;
         break;
+        
     }
   }
 
