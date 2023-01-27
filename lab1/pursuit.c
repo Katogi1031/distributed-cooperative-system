@@ -640,7 +640,7 @@ int main(int argc, char *argv[]){
   /* 変数のデフォルト値を設定する */
   gameStepNum_Max = GAME_NUM;
   displayWait = DISPLAY_WAIT;
-  strcpy(worldFileName, "battlefield.dat");
+  strcpy(worldFileName, "battlefieldTest.dat");
 
   /* 標準入力からのパラメータ処理 */
   for (i=1; i<argc; i++){
