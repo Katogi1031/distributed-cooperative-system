@@ -114,6 +114,7 @@ void Predator(int field1[16][16], int field2[16][16], int field3[16][16], int fi
     Predator2(field2, point2);
     Predator3(field3, point3);
     Predator4(field4, point4);
+    History();
 }
 
 
@@ -151,6 +152,8 @@ struct predatorNode* predatorAStar(struct predatorNode* current, struct predator
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
+//   free(tempList);
+//   free(nextNode);
   return predatorAStar(nextNode, goal, openList, l1, closedList, l2);
 }
 
@@ -189,6 +192,8 @@ int predatorSearch(struct predatorNode* current, struct predatorNode **openList,
         memcpy(&((*openList)[total-1]), &tempList[j],sizeof(struct predatorNode));              
       }      
    } 
+//    free(tempList);
+//    free(openList);
   return count + l1;
 }
 
@@ -231,77 +236,78 @@ struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
       current = current->parent;                    
   }
   printf("%d %d\n", current->pnt->y, current->pnt->x);
+//   free(current);
+//   free(ptr);
   return &ptr[steps-1];
 }
 
 void Predator1(int* field, int* point){
-    static int IsArrivedPosition = 0;
-    
-    /* スタートノードの作成 */
-    struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    /* ゴールノードの作成 */
-    struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    PredatorPosition(sP, 1);
+    *point = AllocateMemory(1);
 
-    // 定位置についた、かつ、Preyが見つかっていない
-    if(findPrey == 0 && IsArrivedPosition){
-        *point = RightHandRule(sP->y, sP->x);
-    }
-    // Preyが見つかった、または、定位置についていない
-    else if(findPrey == 1 || IsArrivedPosition == 0){
-        // Preyを見つけていれば
-        if(findPrey == 1){
-            gP->x = preyX, gP->y = preyY;
-        }
-        // 定位置についていなければ
-        else if(IsArrivedPosition == 0){
-            gP->x = 3, gP->y = 3;
-        }
-        struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-        startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
-        struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-        goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
+    // /* スタートノードの作成 */
+    // struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    // /* ゴールノードの作成 */
+    // struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    // PredatorPosition(sP, 1);
 
-        /* オープンリストの作成 */
-        struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-        *openList = NULL;
+    // // 定位置についた、かつ、Preyが見つかっていない
+    // if(findPrey == 0){
+    //     *point = RightHandRule(sP->y, sP->x);
+    // }
+    // // Preyが見つかった、または、定位置についていない
+    // else if(findPrey == 1){
+    //     // Preyを見つけていれば
+    //     gP->x = preyX, gP->y = preyY;
+    //     // if(findPrey == 1){
+            
+    //     // }
+    //     // // 定位置についていなければ
+    //     // else if(IsArrivedPosition == 0){
+    //     //     gP->x = 3, gP->y = 3;
+    //     // }
+    //     struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+    //     startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
+    //     struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+    //     goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
 
-        /* クローズリストの作成 */
-        struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-        *closedList = NULL;
-        (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
-        memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
+    //     /* オープンリストの作成 */
+    //     struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+    //     *openList = NULL;
 
-        /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-        struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
-        /* 現在地から次の移動位置を受け取る */
-        struct predatorPoint* nextPosition = predatorRetrace(finished);
+    //     /* クローズリストの作成 */
+    //     struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+    //     *closedList = NULL;
+    //     (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+    //     memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
 
-        char act[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
-        int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for(int i = 0; i < 4; i++){
-            /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
-            if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
-                *point = (int)act[i];
-            }
-        }
-        if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
-        free(startNode);
-        free(goalNode);
-        free(finished);
-        free(closedList);
-        free(openList);
-    }    
-    History();
-    history[sP->y][sP->x] = 5;
+    //     /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+    //     struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+    //     /* 現在地から次の移動位置を受け取る */
+    //     struct predatorPoint* nextPosition = predatorRetrace(finished);
+
+    //     char act[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
+    //     int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    //     for(int i = 0; i < 4; i++){
+    //         /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
+    //         if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
+    //             *point = (int)act[i];
+    //         }
+    //     }
+    //     // if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
+    //     free(startNode);
+    //     free(goalNode);
+    //     free(finished);
+    //     free(closedList);
+    //     free(openList);
+    //     free(sP);
+    // }    
+    // History();
+    // history[sP->y][sP->x] = 10;
 
     printf("%d\n", *point);
 }
 
 void Predator2(int* field, int* point){
-    
-    static int IsArrivedPosition = 0;
-    
     /* スタートノードの作成 */
     struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
     /* ゴールノードの作成 */
@@ -309,19 +315,20 @@ void Predator2(int* field, int* point){
     PredatorPosition(sP, 2);
 
     // 定位置についた、かつ、Preyが見つかっていない
-    if(findPrey == 0 && IsArrivedPosition){
+    if(findPrey == 0){
         *point = RightHandRule(sP->y, sP->x);
     }
     // Preyが見つかった、または、定位置についていない
-    else if(findPrey == 1 || IsArrivedPosition == 0){
+    else if(findPrey == 1){
         // Preyを見つけていれば
-        if(findPrey == 1){
-            gP->x = preyX, gP->y = preyY;
-        }
-        // 定位置についていなければ
-        else if(IsArrivedPosition == 0){
-            gP->x = 11, gP->y = 3;
-        }
+        gP->x = preyX, gP->y = preyY;
+        // if(findPrey == 1){
+            
+        // }
+        // // 定位置についていなければ
+        // else if(IsArrivedPosition == 0){
+        //     gP->x = 3, gP->y = 3;
+        // }
         struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
         startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
         struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
@@ -350,22 +357,21 @@ void Predator2(int* field, int* point){
                 *point = (int)act[i];
             }
         }
-        if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
+        // if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
         free(startNode);
         free(goalNode);
         free(finished);
         free(closedList);
         free(openList);
+        free(sP);
     }    
-    History();
-    history[sP->y][sP->x] = 5;
+    
+    history[sP->y][sP->x] = 10;
 
     printf("%d\n", *point);
 }
 
 void Predator3(int* field, int* point){
-    static int IsArrivedPosition = 0;
-    
     /* スタートノードの作成 */
     struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
     /* ゴールノードの作成 */
@@ -373,19 +379,20 @@ void Predator3(int* field, int* point){
     PredatorPosition(sP, 3);
 
     // 定位置についた、かつ、Preyが見つかっていない
-    if(findPrey == 0 && IsArrivedPosition){
+    if(findPrey == 0){
         *point = RightHandRule(sP->y, sP->x);
     }
     // Preyが見つかった、または、定位置についていない
-    else if(findPrey == 1 || IsArrivedPosition == 0){
+    else if(findPrey == 1){
         // Preyを見つけていれば
-        if(findPrey == 1){
-            gP->x = preyX, gP->y = preyY;
-        }
-        // 定位置についていなければ
-        else if(IsArrivedPosition == 0){
-            gP->x = 3, gP->y = 11;
-        }
+        gP->x = preyX, gP->y = preyY;
+        // if(findPrey == 1){
+            
+        // }
+        // // 定位置についていなければ
+        // else if(IsArrivedPosition == 0){
+        //     gP->x = 3, gP->y = 3;
+        // }
         struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
         startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
         struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
@@ -414,24 +421,21 @@ void Predator3(int* field, int* point){
                 *point = (int)act[i];
             }
         }
-        if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
+        // if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
         free(startNode);
         free(goalNode);
         free(finished);
         free(closedList);
         free(openList);
+        free(sP);
     }    
-    History();
-    history[sP->y][sP->x] = 5;
+    
+    history[sP->y][sP->x] = 10;
 
     printf("%d\n", *point);
-    
 }
 
 void Predator4(int* field, int* point){
-    
-    static int IsArrivedPosition = 0;
-    
     /* スタートノードの作成 */
     struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
     /* ゴールノードの作成 */
@@ -439,19 +443,20 @@ void Predator4(int* field, int* point){
     PredatorPosition(sP, 4);
 
     // 定位置についた、かつ、Preyが見つかっていない
-    if(findPrey == 0 && IsArrivedPosition){
+    if(findPrey == 0){
         *point = RightHandRule(sP->y, sP->x);
     }
     // Preyが見つかった、または、定位置についていない
-    else if(findPrey == 1 || IsArrivedPosition == 0){
+    else if(findPrey == 1){
         // Preyを見つけていれば
-        if(findPrey == 1){
-            gP->x = preyX, gP->y = preyY;
-        }
-        // 定位置についていなければ
-        else if(IsArrivedPosition == 0){
-            gP->x = 11, gP->y = 11;
-        }
+        gP->x = preyX, gP->y = preyY;
+        // if(findPrey == 1){
+            
+        // }
+        // // 定位置についていなければ
+        // else if(IsArrivedPosition == 0){
+        //     gP->x = 3, gP->y = 3;
+        // }
         struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
         startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
         struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
@@ -480,29 +485,30 @@ void Predator4(int* field, int* point){
                 *point = (int)act[i];
             }
         }
-        if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
+        // if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
         free(startNode);
         free(goalNode);
         free(finished);
         free(closedList);
         free(openList);
+        free(sP);
     }    
-    History();
-    history[sP->y][sP->x] = 5;
+    
+    history[sP->y][sP->x] = 10;
 
     printf("%d\n", *point);
 }
 
     
 int RightHandRule(int posY, int posX){
-    char array[4] = {'t', 'd', 'l', 'r'};
+    char array[4] = {'u', 'd', 'l', 'r'};
     // 右方向に行けるなら
     // その場所に障害物がない、かつ、フィールド内であること
     printf("%d %d\n", posY, posX);
-    if(map[posY][posX + 1] == 0 && posX+1 < 16) return (int)array[3]; // 右に行けるなら
-    else if(map[posY + 1][posX] == 0 && posY+1 < 16) return (int)array[1]; // 下に行けるなら
-    else if(map[posY][posX - 1] == 0 && 0 <= posX-1) return (int)array[2]; // 左に行けるなら
-    else if(map[posY - 1][posX] == 0 && 0 <= posY-1) return (int)array[0]; // 上に行けるなら
+    if(map[posY][posX + 1] == 0 && posX+1 < 16 && history[posY][posX+1] == 0) return (int)array[3]; // 右に行けるなら
+    else if(map[posY + 1][posX] == 0 && posY+1 < 16 && history[posY+1][posX] == 0) return (int)array[1]; // 下に行けるなら
+    else if(map[posY][posX - 1] == 0 && 0 <= posX-1 && history[posY][posX-1] == 0) return (int)array[2]; // 左に行けるなら
+    else if(map[posY - 1][posX] == 0 && 0 <= posY-1 && history[posY-1][posX] == 0) return (int)array[0]; // 上に行けるなら
 }
 
 void PredatorPosition(struct predatorPoint* pos, int n){
@@ -525,4 +531,47 @@ void History(){
             }
         }
     }
+}
+
+int AllocateMemory(int n){
+     /* スタートノードの作成 */
+    struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    PredatorPosition(sP, n);
+    struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+    startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
+    
+    /* ゴールノードの作成 */
+    struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    gP->x = preyX, gP->y = preyY;
+
+    struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+    goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
+
+    /* オープンリストの作成 */
+    struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+    *openList = NULL;
+
+    /* クローズリストの作成 */
+    struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+    *closedList = NULL;
+    (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+    memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
+
+    /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+    struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+    /* 現在地から次の移動位置を受け取る */
+    struct predatorPoint* nextPosition = predatorRetrace(finished);
+
+    char act[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
+    int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int i, pos;
+    for(i = 0; i < 4; i++){
+        /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
+        if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
+            // *point = (int)act[i];
+            break;
+        }
+    }
+
+    return (int)act[i];
 }
