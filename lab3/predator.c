@@ -64,117 +64,56 @@ void Predator(int field1[16][16], int field2[16][16], int field3[16][16], int fi
 
 
     // 各predatorの視界からマップを更新
-    // MapUpdate(field1);
-    // MapUpdate(field2);
-    // MapUpdate(field3);
-    // MapUpdate(field4);
+    MapUpdate(field1);
+    MapUpdate(field2);
+    MapUpdate(field3);
+    MapUpdate(field4);
 
     // predatorの行動戦略を取得
-    
     Predator1(field1, point1);
-    // Predator2(field2, point2);
-    // Predator3(field3, point3);
+    Predator2(field2, point2);
+    Predator3(field3, point3);
     Predator4(field4, point4);
-
 }
 
 
 void Predator1(int* field, int* point){
     
-    // quarterMap内の自分がどのエリアに属するか求める
-    int posX, posY;
-    int i, j;
-    // int pos[2];
-
-    struct predatorPoint *predator1 = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    
-    // 座標の取得
-    // for(i = 0; i < 16; i++){
-    //     for(j = 0; j < 16; j++){
-    //         if(map[i][j] == 1){
-    //                 predator1->y = i; // 行
-    //                 predator1->x = j; // 列
-    //         }
-    //     }
-    // }    
-    // struct predatorPoint *pos = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
     struct predatorPoint* pos = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
     PredatorPosition(pos, 1);
     printf("%d, %d\n", pos->y, pos->x);
-    
-    free(pos); //使用後にfreeをする
-
-
     *point = RightHandRule(pos->y, pos->x);
-    // printf("predator1 : %d\n", *point);
-    // free(predator1);
+    free(pos); //使用後にfreeをする
 }
 
 void Predator2(int* field, int* point){
     
-    // quarterMap内の自分がどのエリアに属するか求める
-    int posX, posY;
-    int i, j;
-    int pos[2];
-
-    struct predatorPoint *predator2 = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    
-    // 座標の取得
-    for(i = 0; i < 16; i++){
-        for(j = 0; j < 16; j++){
-            switch(map[i][j]){
-                case 2:
-                    predator2->y = i; // 行
-                    predator2->x = j; // 列
-                    break;
-            }
-        }
-    }
-    
-    // pos = &predatorPosition(1);
-    // printf("%d %d\n", predator2->y, predator2->x);
-    *point = RightHandRule(predator2->y, predator2->x);
-    printf("predator2 : %d\n", *point);
-    // free(predator2);
+    struct predatorPoint* pos = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    PredatorPosition(pos, 2);
+    printf("%d, %d\n", pos->y, pos->x);
+    *point = RightHandRule(pos->y, pos->x);
+    free(pos); //使用後にfreeをする
 }
 
 void Predator3(int* field, int* point){
-    int i, j;
-    struct predatorPoint *predator3 = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    // 座標の取得
-    for(i = 0; i < 16; i++){
-        for(j = 0; j < 16; j++){
-            switch(map[i][j]){
-                case 3:
-                    predator3->y = i; // 行
-                    predator3->x = j; // 列
-                    break;
-            }
-        }
-    }
-    *point = RightHandRule(predator3->y, predator3->x);
-    printf("predato3 : %d\n", *point);
-    free(predator3);
+    
+    struct predatorPoint* pos = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    PredatorPosition(pos, 3);
+    printf("%d, %d\n", pos->y, pos->x);
+    *point = RightHandRule(pos->y, pos->x);
+    free(pos); //使用後にfreeをする
 }
 
 void Predator4(int* field, int* point){
-    int i, j;
-    struct predatorPoint *predator4 = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    // 座標の取得
-    for(i = 0; i < 16; i++){
-        for(j = 0; j < 16; j++){
-            if(map[i][j] == 4){
-                predator4->y = i; // 行
-                predator4->x = j; // 列
-            }
-        }
-    }
-    // *point = RightHandRule(predator4->y, predator4->x);   
-    *point = (int)('b');
-    printf("predato4 : %d\n", *point);
-    printf("predato4 : %d\n", (int)('b'));
-    free(predator4);
+    
+    struct predatorPoint* pos = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+    PredatorPosition(pos, 4);
+    printf("%d, %d\n", pos->y, pos->x);
+    *point = RightHandRule(pos->y, pos->x);
+    free(pos); //使用後にfreeをする
+    printf("%d\n", *point);
 }
+
     
 int RightHandRule(int posY, int posX){
     char array[4] = {'t', 'b', 'l', 'r'};
@@ -183,8 +122,8 @@ int RightHandRule(int posY, int posX){
     printf("%d %d\n", posY, posX);
     if(map[posY][posX + 1] == 0 && posX+1 < 16) return (int)array[3]; // 右に行けるなら
     else if(map[posY + 1][posX] == 0 && posY+1 < 16) return (int)array[1]; // 下に行けるなら
-    else if(map[posY - 1][posX] == 0 && 0 <= posY-1) return (int)array[0]; // 上に行けるなら
     else if(map[posY][posX - 1] == 0 && 0 <= posX-1) return (int)array[2]; // 左に行けるなら
+    else if(map[posY - 1][posX] == 0 && 0 <= posY-1) return (int)array[0]; // 上に行けるなら
 }
 
 void PredatorPosition(struct predatorPoint* pos, int n){
@@ -197,5 +136,4 @@ void PredatorPosition(struct predatorPoint* pos, int n){
             }
         }
     }
-    printf("%d %d\n", pos->y, pos->x);
 }
