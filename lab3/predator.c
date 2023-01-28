@@ -242,7 +242,10 @@ struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
 }
 
 void Predator1(int* field, int* point){
-    *point = AllocateMemory(1);
+
+    
+
+    // *point = AllocateMemory(1);
 
     // /* スタートノードの作成 */
     // struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
