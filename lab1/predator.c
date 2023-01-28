@@ -13,6 +13,7 @@ Description : Using the A* algorithm, find the shortest distance between Predato
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define predator_E 0.000001 // ニュートン法で求める際の閾値
 int predator_field[8][8]; // フィールド情報を持つグローバルな配列
@@ -161,6 +162,7 @@ struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
 }
 /* Predator */
 void Predator(int *ca, int *action){
+  long cpu_time;
   int p, q;
   struct predatorPoint *predator = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
   struct predatorPoint *prey = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
@@ -219,4 +221,6 @@ void Predator(int *ca, int *action){
       *action = (int)act[i];
     }
   }
+
+  printf("cpu : %d\n", cpu_time);
 }
