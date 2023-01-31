@@ -287,7 +287,7 @@ struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
 }
 
 void Predator1(int* field, int* point){
-    *point = PredatorAct(1, 3, 3);
+    *point = PredatorAct(1);
     printf("%d\n", *point);
 }
 
@@ -295,23 +295,23 @@ void Predator1(int* field, int* point){
 
 void Predator2(int* field, int* point){
    
-    *point = PredatorAct(2, 3, 11);
+    *point = PredatorAct(2);
     printf("%d\n", *point);
 }
 
 void Predator3(int* field, int* point){
-    *point = PredatorAct(3, 11, 3);
+    *point = PredatorAct(3);
     printf("%d\n", *point);
     
 }
 
 void Predator4(int* field, int* point){
-    *point = PredatorAct(4, 11, 11);
+    *point = PredatorAct(4);
     printf("%d\n", *point);
 }
 // 
 
-int PredatorAct(int n, int posY, int posX){
+int PredatorAct(int n){
   int actNum[] = {117, 100, 108, 114};
   int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
   int i;
