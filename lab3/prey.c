@@ -38,450 +38,314 @@
 #define VALUE_OF_UNREACH -10
 #endif
 
-/* Predatorの数 */
-#ifndef NUM_OF_PREDATOR
-#define NUM_OF_PREDATOR 4
-#endif
-
-/*
- *PredatorおよびPreyの位置を表す構造体
- */
-typedef struct{
-  int x;
-  int y;
-} Position;
-
-const int prey_INF = 30;          // エッジが存在しない場合の表現(無限大の距離)
-int prey_adj[NODE_NUM][NODE_NUM]; // 隣接行列本体
-int prey_dp[NODE_NUM][NODE_NUM];  // 最短経路
-
-// int predator_adj[NODE_NUM][NODE_NUM];
-
-static int PreyMap[WORLD_SIZE][WORLD_SIZE] = {{-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
-                                            {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10}
+static int PreyMap[16][16] = {{-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+                                {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10}
 };
 
-void PreyMapUpdate(int field[16][16], int flag[4]){
+static int heatMap[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
+};
+
+struct predatorNode{
+  struct predatorPoint* pnt;
+  struct predatorNode* parent;
+  int g;
+  int h;
+};
+
+// 座標の構造体
+struct predatorPoint{
+  int x;
+  int y;
+};
+
+void PreyMapUpdate(int field[WORLD_SIZE][WORLD_SIZE]){
     for(int i = 0; i < WORLD_SIZE; i++){
         for(int j = 0; j < WORLD_SIZE; j++){
             if(field[i][j] != VALUE_OF_UNREACH){
                 PreyMap[i][j] = field[i][j];
             }
-            if(field[i][j] == VALUE_OF_PREDATOR) flag[0] = 1;
-            if(field[i][j] == VALUE_OF_PREDATOR + 1) flag[1] = 1;
-            if(field[i][j] == VALUE_OF_PREDATOR + 2) flag[2] = 1;
-            if(field[i][j] == VALUE_OF_PREDATOR + 3) flag[3] = 1;
-        }
-    }
-}
-
-
-Position PreyGetPosition(int n){
-    int i, j;
-    Position position;
-    for(i = 0; i < WORLD_SIZE; i++){
-        for(j = 0; j < WORLD_SIZE; j++){
-            if(PreyMap[i][j] == n){
-                position.y = i; // 行
-                position.x = j; // 列
-            }
-        }
-    }
-    return position;
-}
-
-// ノード位置を返す(配列サイズ : 256)
-int PreyNodePos(Position pos){
-    return pos.y * WORLD_SIZE + pos.x;
-}
-
-void InitializeArray(int matrix[WORLD_SIZE][WORLD_SIZE]){
-    int i, j;
-    for(i = 0; i < WORLD_SIZE; i++){
-        for(j = 0; j < WORLD_SIZE; j++){
-            matrix[i][j] = 0;
         }
     }
 }
 
 void Prey(int field[16][16], int *point){
-    // char act = 'r';
-    int findFlag[] = {0, 0, 0, 0};
-    float action[4];
-    int max = 0;
-    int index, i, j;
-    char act[] = {'u', 'd', 'l', 'r'};
+    // char act = 'd';
+    // *point = (int)act;
 
-    float evalDistance[WORLD_SIZE][WORLD_SIZE];
-    float evalCorner[WORLD_SIZE][WORLD_SIZE];
-    float evalObstacle[WORLD_SIZE][WORLD_SIZE];
-    float evalTotal[WORLD_SIZE][WORLD_SIZE];
+    PreyMapUpdate(field);
 
-    InitializeArray(evalDistance);
-    InitializeArray(evalCorner);
-    InitializeArray(evalObstacle);
+    // predatorの行動戦略を取得
+    MakeHeatMap();
 
-    // マップの更新, Predatorの発見
-    PreyMapUpdate(field, findFlag);
-    
-    // Preyの位置を取得
-    Position preyPosition = PreyGetPosition(VALUE_OF_PREY);
-
-    // 隣接行列を求める
-    AdjacementMatrix();
-
-    // 隣接行列をコピー
-    CopyArray();
-    
-    // 最短距離を求める
-    FloydWarshall();
-
-    // Predatorがいれば、逃走配列の更新
-    
-    for(i = 0; i < NUM_OF_PREDATOR; i++){
-        if(findFlag[i] == 1){
-            // 探索処理 ワ―シャルフロイド法
-            Position predatorPosition = PreyGetPosition(i);
-            PreyDistance(evalDistance, PreyNodePos(predatorPosition));
-            printf("Predator%dに見つかった\n", i);
-        }
-    }
-    
-    // 障害物、角の評価
-    preyCreateEvalMapSurround(evalObstacle);
-    preyCreateEvalMapCorner(evalCorner);
-
-    // すべての評価を加算
-    preySumOfProducts(evalTotal, evalDistance, evalObstacle, evalCorner);
-
-    for(i = 0; i < WORLD_SIZE; i++){
-        for(j = 0; j < WORLD_SIZE; j++){
-            printf("%.2f ", evalTotal[i][j]);
-        }
-        printf("\n");
-    }
-
-    // 評価が最も高い方に移動
-    for(i = 0; i < 4; i++){
-        action[i] = 0.0;
-    }
-
-    if(preyPosition.y - 1 >= 0){
-        action[0] = evalTotal[preyPosition.y - 1][preyPosition.x];
-    }
-    if(preyPosition.y + 1 < WORLD_SIZE){
-        action[1] = evalTotal[preyPosition.y + 1][preyPosition.x];
-    }
-    if(preyPosition.x - 1 >= 0){
-        action[2] = evalTotal[preyPosition.y][preyPosition.x - 1];
-    }
-    if(preyPosition.x + 1 < WORLD_SIZE){
-        action[3] = evalTotal[preyPosition.y][preyPosition.x + 1];
-    }
-
-    for(i = 0; i < 4; i++){
-        if(max < action[i]){
-            max = action[i];
-            index = i;
-        }
-    }
+    *point = PredatorAct(VALUE_OF_PREY);
+    printf("%d\n", *point);
 
 
-    
-
-
-    *point = (int)act[index];
-    printf("%.2f %d\n", max, *point);
-}
-
-// shortestMap[256][256] ⇒ Distancemap[16][16]
-// 隣接行列を用いてワ―シャルフロイド法により求めた最短距離を使って、16×16のマップにPredatorからの距離に当てはめる
-void PreyDistance(float map[WORLD_SIZE][WORLD_SIZE], int predatorNodePos){
-    int fromNodeNum = 0;  // ノード番号は0から走査
-    float evaluation;     // 評価値
-    for (int i = 0; i < WORLD_SIZE; i++) {
-        for (int j = 0; j < WORLD_SIZE; j++) {
-        /*
-        * Predatorまでの距離を正規化
-        * prey_dp[fromNodeNum][predatorNodeNum]:Predatorまでの距離
-        * 評価値は距離0で0.0
-        */
-        if (prey_dp[fromNodeNum][predatorNodePos] == prey_INF) {
-            evaluation = 0.0;
-        } else {
-            evaluation = (float)(prey_dp[fromNodeNum][predatorNodePos]) / prey_INF;
-        }
-        map[i][j] += evaluation;
-        fromNodeNum++;
-        }
-    }
-}
-
-
-// 隣接行列の作成
-void AdjacementMatrix(){
-  int from = -1;      // 走査するノード, 最初のループに入ったときに0になる
-  int to = from + 1;  // fromの右隣のノード
-  int i, j;
-
-  /* 隣接行列を0で初期化*/
-  for (i = 0; i < NODE_NUM; i++) {
-    for (j = 0; j < NODE_NUM; j++) {
-      prey_adj[i][j] = 0;
-    }
-  }
-
-  /* x軸方向のエッジを検出*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    /* 走査するノードを１列右にシフト*/
-    from += 1;
-    to = from + 1;
-
-    for (j = 0; j < WORLD_SIZE - 1; j++) {
-      if (PreyMap[i][j] != VALUE_OF_OBSTACLE && PreyMap[i][j+1] != VALUE_OF_OBSTACLE) {
-        prey_adj[from][to] = 1;
-        prey_adj[to][from] = 1;
-      }
-
-      from++;
-      to++;
-    }
-  }
-  from = (WORLD_SIZE * (WORLD_SIZE - 1) - 1);  // 最初のループに入ったときに0になる
-  to = from + WORLD_SIZE;                      // fromの下のノード
-
-  /* y軸方向のエッジを検出*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    /* 走査するノードを１列右にシフト*/
-    from -= (WORLD_SIZE * (WORLD_SIZE - 1) - 1);
-    to = from + WORLD_SIZE;
-
-    for (j = 0; j < WORLD_SIZE - 1; j++) {
-      if (PreyMap[j][i] != VALUE_OF_OBSTACLE && PreyMap[j+1][i] != VALUE_OF_OBSTACLE) {
-        prey_adj[from][to] = 1;
-        prey_adj[to][from] = 1;
-      }
-
-      from += WORLD_SIZE;
-      to = from + WORLD_SIZE;
-    }
-  }
-
-}
-
-// void CheckAdjacent(){
-//   int i, j;
-//   int cnt;
-
-//   for(i = 0; i < NODE_NUM; i++){
-//     cnt = 0;
-//     for(j = 0; j < NODE_NUM; j++){
-//       if(prey_adj[i][j] == 1){
-//         cnt+= 1;
-//       }
-//       // printf("%d ", predator_adj[i][j]);
-//     }
-//     printf("%3d", cnt);
-//     if((i+1) % WORLD_SIZE == 0 && i != 0){
-//       printf("\n");
-//     }
-//     // printf("\n");
-//   }
-// }
-
-void CopyArray(){
-    int i, j;
-    for(i = 0; i < NODE_NUM; i++){
-        for(j = 0; j < NODE_NUM; j++){
-            prey_dp[i][j] = prey_adj[i][j];
-        }
-    }
-}
-
-void FloydWarshall(){
-    int i, j, k;
-
-    for(i = 0; i < NODE_NUM; i++){
-        for(j = 0; j < NODE_NUM; j++){
-            if (prey_dp[i][j] != 1) {        // 隣接していなければ
-                if (i == j) continue;      // 自身への距離は0
-                prey_dp[i][j] = prey_INF;     // 障害物との距離は無限
-            }
-        }
-    }
-
-    /* ワーシャルフロイド法*/
-    for (int k = 0; k < NODE_NUM; k++) {
-        for(int i = 0; i < NODE_NUM; i++) {
-            for (int j = 0; j < NODE_NUM; j++) {
-                if (prey_dp[i][j] > prey_dp[i][k] + prey_dp[k][j])
-                    prey_dp[i][j] = prey_dp[i][k] + prey_dp[k][j];
-            }
-        }
-    }
 }
 
 
 
-/*
- * 格子世界の角隅となる場所に負の評価づけをし、評価マップを生成
- * int battleFieldArray[WORLD_SIZE][WORLD_SIZE]
- *      :格子世界を表すWORLD_SIZE*WORLD_SIZEの整数型2次元配列
- * float evalMap[WORLD_SIZE][WORLD_SIZE]
- *        :各座標における評価値を保存するWORLD_SIZE*WORLD_SIZEのfloat型二次元配列
- */
-void preyCreateEvalMapCorner(float evalMap[WORLD_SIZE][WORLD_SIZE]){
-  int i, j;
+/* 関数の呼び出し順に宣言したいための処置 */
+struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
+int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
+int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
+struct predatorPoint* predatorRetrace(struct predatorNode* goalNode);
 
-  /* すべて0で初期化*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      evalMap[i][j] = 0.0;
-    }
-  }
+/* AStarAlgorithm */
+/* A*アルゴリズムを用いてスタートノードからゴールノードまでの最短距離を求める */
+struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** closedList, int l2){
+  int i, j, nextIndex;
+  int cnt = 0;
 
-  /* 各座標への評価づけ*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      if (PreyMap[i][j] == VALUE_OF_OBSTACLE) {
-          /* 障害物は最低値*/
-         evalMap[i][j] = 10.0;
-      } else {
-          /* 右上*/
-         if (j + 1 >= WORLD_SIZE && i - 1 < 0) {
-           evalMap[i][j] = 3.0;
-           evalMap[i + 1][j] = 2.0;
-           evalMap[i][j - 1] = 2.0;
-          }
-          /* 右下*/
-         if (j + 1 >= WORLD_SIZE && i + 1 >= WORLD_SIZE) {
-           evalMap[i][j] = 3.0;
-           evalMap[i - 1][j] = 2.0;
-           evalMap[i][j - 1] = 2.0;
-          }
-          /* 左下*/
-         if (j - 1 < 0 && i + 1 >= WORLD_SIZE) {
-           evalMap[i][j] = 3.0;
-           evalMap[i - 1][j] = 2.0;
-           evalMap[i][j + 1] = 2.0;
-          }
-          /* 左上*/
-         if (j - 1 < 0 && i - 1 < 0) {
-           evalMap[i][j] = 3.0;
-           evalMap[i + 1][j] = 2.0;
-           evalMap[i][j + 1] = 2.0;
-          }
-       }
-    }
-  }
-
-  /* 正規化*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      evalMap[i][j] = 1.0 - evalMap[i][j] / 10.0;
-    }
-  }
-}
-
-/*
- * 障害物に囲まれる場所に負の評価づけをし、評価マップを生成
- * int battleFieldArray[WORLD_SIZE][WORLD_SIZE]
- *      :格子世界を表すWORLD_SIZE*WORLD_SIZEの整数型2次元配列
- * float evalMap[WORLD_SIZE][WORLD_SIZE]
- *        :各座標における評価値を保存するWORLD_SIZE*WORLD_SIZEのfloat型二次元配列
- */
-void preyCreateEvalMapSurround(float evalMap[WORLD_SIZE][WORLD_SIZE]){
-  int i, j;
-
-  /* すべて0で初期化*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      evalMap[i][j] = 0.0;
-    }
-  }
-
-  /* 障害物に囲まれた場所とその周辺に重み付け*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-     if (PreyMap[i][j] == VALUE_OF_OBSTACLE) continue;
-
-      /*上と右の確認*/
-      if (PreyMap[i - 1][j] == VALUE_OF_OBSTACLE && PreyMap[i][j + 1] == VALUE_OF_OBSTACLE) {
-            evalMap[i][j] += 2.0;
-            evalMap[i + 1][j] += 1.0;
-            evalMap[i][j - 1] += 1.0;
-       }
-      /*下と右の確認*/
-      if (PreyMap[i + 1][j] == VALUE_OF_OBSTACLE && PreyMap[i][j + 1] == VALUE_OF_OBSTACLE) {
-      evalMap[i][j] += 2.0;
-      evalMap[i - 1][j] += 1.0;
-      evalMap[i][j - 1] += 1.0;
-       }
-      /*上と左の確認*/
-      if (PreyMap[i - 1][j] == VALUE_OF_OBSTACLE && PreyMap[i][j - 1] == VALUE_OF_OBSTACLE) {
-      evalMap[i][j] += 2.0;
-      evalMap[i + 1][j] += 1.0;
-      evalMap[i][j + 1] += 1.0;
-       }
-      /*下と左の確認*/
-      if (PreyMap[i + 1][j] == VALUE_OF_OBSTACLE && PreyMap[i][j - 1] == VALUE_OF_OBSTACLE) {
-      evalMap[i][j] += 2.0;
-      evalMap[i - 1][j] += 1.0;
-      evalMap[i][j + 1] += 1.0;
-       }
-     }
-  }
-
-  /* 障害物の評価を最低値にする*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      if (PreyMap[i][j] == VALUE_OF_OBSTACLE)
-       evalMap[i][j] = 10.0;
-    }
-  }
-
-  /* 値を反転して正規化*/
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      evalMap[i][j] = 1.0 - evalMap[i][j] / 10.0;
-    }
-  }
-}
-
-
-/*
- * 3つのマップを積和合成する
- * float resultMap[WORLD_SIZE][WORLD_SIZE]
- *        :合成したマップを格納するWORLD_SIZE*WORLD_SIZEのfloat型二次元配列
- * float map_a[WORLD_SIZE][WORLD_SIZE]
- * float map_b[WORLD_SIZE][WORLD_SIZE]
- * float map_c[WORLD_SIZE][WORLD_SIZE]
- *        :合成するマップ
- */
-void preySumOfProducts(float resultMap[WORLD_SIZE][WORLD_SIZE], float map_a[WORLD_SIZE][WORLD_SIZE], float map_b[WORLD_SIZE][WORLD_SIZE], float map_c[WORLD_SIZE][WORLD_SIZE]){
+  /* オープンリストの長さを求める */
+  l1 = predatorSearch(current, openList, l1, closedList, l2);
+  /* 経路コストを計算する */
+  nextIndex = predatorCalcCost(openList, goal, l1);
+  struct predatorNode *nextNode = &((*openList)[nextIndex]);
   
-  int i, j;
-  const float a_ratio = 0.5;  // マップAの影響比率
-  const float b_ratio = 0.1;  // マップBの影響比率
-  const float c_ratio = 0.4;  // マップBの影響比率
+  /* 次のオープンリストを作成する */
+  struct predatorNode *tempList = (struct predatorNode*)calloc(l1-1, sizeof(struct predatorNode));
+  for(i = 0, j=0; i < l1; i++){
+    if(i != nextIndex){
+      memcpy(&tempList[j], &((*openList)[i]), sizeof(struct predatorNode));
+      j++;
+    } 
+  }
+  l1--, l2++;
+  *openList = tempList;
+  printf("check\n");
 
-  for (i = 0; i < WORLD_SIZE; i++) {
-    for (j = 0; j < WORLD_SIZE; j++) {
-      resultMap[i][j] = map_a[i][j] * a_ratio + map_b[i][j] * b_ratio + map_c[i][j] * c_ratio;
+  /* クローズドノードに追加していく */
+  *closedList = (struct predatorNode*)realloc((*closedList), l2*(sizeof(struct predatorNode)));
+  memcpy(&((*closedList)[l2-1]), nextNode, sizeof(struct predatorNode));
+
+  /* ゴールに到達していなければAStarAlgorithmを呼び出す */
+  if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
+  return predatorAStar(nextNode, goal, openList, l1, closedList, l2);
+}
+
+/* predatorSearch */
+/* 現在地から移動可能なノードを拡張する */
+int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2){
+  int i, j, count, found;
+  count = 0;
+
+  // ４方向のうち、移動可能なノードを拡張する
+  struct predatorNode* tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
+   for(i = 0; i < 4; i++){
+      tempList[i].pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+      int nY = (int)(current->pnt->y-1)/2;
+      int nX = (int)current->pnt->x/2;
+      if(i == 0 && PreyMap[current->pnt->y-1][current->pnt->x] != -1 && 0 <= current->pnt->y-1){
+        // 上に障害物がないか
+        tempList[i].pnt->y = current->pnt->y-1, tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
+      }  
+      else if(i == 3 && PreyMap[current->pnt->y+1][current->pnt->x] != -1 && current->pnt->y+1 < 16) // 下に障害物がないか
+        tempList[i].pnt->y = current->pnt->y+1,tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
+      else if(i == 1 && PreyMap[current->pnt->y][current->pnt->x+1] != -1 && current->pnt->x+1 < 16) // 右に障害物がないか
+        tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x+1, tempList[i].g = current->g+1;
+      else if(i == 2 && PreyMap[current->pnt->y][current->pnt->x-1] != -1 && 0 <= current->pnt->x-1) // 左に障害物がないか
+        tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x-1, tempList[i].g = current->g+1;
+
+      tempList[i].parent = current;
+   }
+
+  /* 拡張したノードがオープンリスト、クローズドリストになければ追加する*/
+  for(j = 0; j < 4; j++){
+      found = 0;           
+      if(tempList[j].parent == NULL) return 0;
+      for(i = 0; i < l1; i++) if((*openList)[i].pnt->x == tempList[j].pnt->x && (*openList)[i].pnt->y == tempList[j].pnt->y) found++;
+      for(i = 0; i < l2; i++) if(tempList[j].pnt->x == (*closedList)[i].pnt->x && (*closedList)[i].pnt->y == tempList[j].pnt->y) found++; 
+      if(found == 0){
+        count++;
+        int total = l1 + count;
+        *openList = (struct predatorNode*)realloc((*openList), total*(sizeof(struct predatorNode)));
+        memcpy(&((*openList)[total-1]), &tempList[j],sizeof(struct predatorNode));              
+      }      
+   } 
+  return count + l1;
+}
+
+/* CalcCost */
+/* 現在地からゴールノードまでの仮に見積もった距離を算出する
+   オープンリスト内にあるノード全てと現在地までの総移動コストを求め、そのノードのインデックスを求める
+ */
+int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1){
+  int i, difx, dify;
+  for(i = 0; i < l1; i++){
+    difx = abs((*openList)[i].pnt->x - goalNode->pnt->x);
+    dify = abs((*openList)[i].pnt->y - goalNode->pnt->y);
+    // 三平方の定理(現在地からゴールノードまでの仮に見積もった距離)
+    (*openList)[i].h = difx+dify; // マンハッタン距離
+  }
+  
+  //  
+  int min, minIndex;
+  min = (*openList)[0].g + (*openList)[0].h;
+  minIndex = 0;
+  for(i = 1; i < l1; i++){
+    if((*openList)[i].g + (*openList)[i].h < min){
+      min = (*openList)[i].g + (*openList)[i].h;
+      minIndex = i;
+    } 
+  }
+  return minIndex;
+}
+
+/* Retrace */
+/* ゴールノードから現在地に至るまでのノードに遡り、現在地から次に移動するノードを求める */
+struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
+  struct predatorNode* current = goalNode;
+  struct predatorPoint* ptr = NULL;
+  int steps = 0, i;
+  while(current->parent != NULL){
+      steps++;
+      ptr = (struct predatorPoint*)realloc(ptr, steps*sizeof(struct predatorPoint));
+      memcpy(&ptr[steps-1], current->pnt, sizeof(struct predatorPoint));
+      current = current->parent;                    
+  }
+  printf("%d %d\n", current->pnt->y, current->pnt->x);
+  return &ptr[steps-1];
+}
+
+
+int PredatorAct(int n){
+  int actNum[] = {117, 100, 108, 114};
+  int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+  int i;
+    
+  /* スタートノードの作成 */
+  struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  /* ゴールノードの作成 */
+  struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  PredatorPosition(sP, n);
+
+  
+    ShortestManhattanDistance(sP, gP);
+  
+
+  struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
+  struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
+
+  /* オープンリストの作成 */
+  struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *openList = NULL;
+
+  /* クローズリストの作成 */
+  struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *closedList = NULL;
+  (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+  memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
+
+  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+  struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+  /* 現在地から次の移動位置を受け取る */
+  struct predatorPoint* nextPosition = predatorRetrace(finished);
+  
+  for(i = 0; i < 4; i++){
+      /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
+      if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
+          break;
+      }
+  }
+//   history[sP->y][sP->x] += 1;
+  return actNum[i];
+}
+
+
+void PredatorPosition(struct predatorPoint* pos, int n){
+    int i, j;
+    for(i = 0; i < 16; i++){
+        for(j = 0; j < 16; j++){
+            if(PreyMap[i][j] == n){
+                pos->y = i; // 行
+                pos->x = j; // 列
+            }
+        }
+    }
+}
+
+void ShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* gP){
+  int i, j;
+  int max = 0;
+  int shortest = 100;
+  int distance;
+
+  for(i = 0; i < WORLD_SIZE; i++){
+    for(j = 0; j < WORLD_SIZE; j++){
+      if(heatMap[i][j] >= max){
+        distance = abs(i - sP->y) + abs(j - sP->x);
+        if(distance <= shortest){
+          shortest = distance;
+          max = heatMap[i][j];
+          gP->y = i;
+          gP->x = j;
+        } 
+      }
+    }
+  }
+}
+
+void MakeHeatMap(){
+  int i, j;
+  int temp = 0;
+
+  for(i = 0; i < WORLD_SIZE; i++){
+    for(j = 0; j < WORLD_SIZE; j++){
+      heatMap[i][j] = 0;
+    }
+  }
+
+  for(i = 0; i < WORLD_SIZE; i++){
+    temp = 0;
+    for(j = 0; j < WORLD_SIZE; j++){
+      if(PreyMap[i][j] == VALUE_OF_UNREACH){
+        heatMap[i][j] += 10;
+      }
+      if(PreyMap[i+1][j] == VALUE_OF_UNREACH&& i+1 < 16){
+        heatMap[i][j] += 10;
+      }
+      if(PreyMap[i-1][j] == VALUE_OF_UNREACH&& 0 <= i+1){
+        heatMap[i][j] += 10;
+      }
+      if(PreyMap[i][j+1] == VALUE_OF_UNREACH&& j+1 < 16){
+        heatMap[i][j] += 10;
+      }
+      if(PreyMap[i][j-1] == VALUE_OF_UNREACH&& 0 <= j-1){
+        heatMap[i][j] += 10;
+      }
     }
   }
 }

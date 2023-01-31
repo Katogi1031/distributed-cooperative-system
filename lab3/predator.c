@@ -153,6 +153,13 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
   // 各predatorの視界からマップを更新
   UpdateMap(field1, field2, field3, field4);
 
+  for(int i = 0; i < WORLD_SIZE; i++){
+        for(int j = 0; j < WORLD_SIZE; j++){
+            printf("%2d ", map[i][j]);
+        }
+        printf("\n");
+    }
+
   // predatorの行動戦略を取得
   MakeHeatMap();
   Predator1(field1, point1);
