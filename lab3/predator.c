@@ -33,7 +33,7 @@
 #define VALUE_OF_FREE 0
 #endif
 
-/* 見探索の地の数値表現 */
+/* 未探索の地の数値表現 */
 #ifndef VALUE_OF_UNREACH
 #define VALUE_OF_UNREACH -10
 #endif
@@ -109,9 +109,6 @@ int preyX, preyY;
 
 int predator_adj[NODE_NUM][NODE_NUM];
 
-// Predatorが探索する場所の設定
-// int target[4][2] = {{3, 3}, {3, 11}, {11, 3}, {11, 11}};
-
 struct predatorNode{
   struct predatorPoint* pnt;
   struct predatorNode* parent;
@@ -156,18 +153,6 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
   // 各predatorの視界からマップを更新
   UpdateMap(field1, field2, field3, field4);
 
-  // mapの出力
-  for(int i = 0; i < WORLD_SIZE; i++){
-      for(int j = 0; j < WORLD_SIZE; j++){
-          printf("%4d", map[i][j]);
-      }
-      printf("\n");
-  }
-
-
-  // AdjacementMatrix();
-  // CheckAdjacent();
-  // Obstacle();
   // predatorの行動戦略を取得
   MakeHeatMap();
   Predator1(field1, point1);
@@ -324,100 +309,56 @@ void Predator4(int* field, int* point){
     *point = PredatorAct(4, 11, 11);
     printf("%d\n", *point);
 }
-
+// 
 
 int PredatorAct(int n, int posY, int posX){
-  static int IsArrivedPosition = 0;
   int actNum[] = {117, 100, 108, 114};
+  int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
   int i;
-  // int target[4][2] = {{3, 3}, 
-  //                     {3, 11}, 
-  //                     {11, 3}, 
-  //                     {11, 11}};
-  // int posX = target[n][1], posY = target[n][0];
-  // int posX = 3;
-  // int posY = 3;
-
     
-    /* スタートノードの作成 */
-    struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    /* ゴールノードの作成 */
-    struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-    PredatorPosition(sP, n);
+  /* スタートノードの作成 */
+  struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  /* ゴールノードの作成 */
+  struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  PredatorPosition(sP, n);
+
+  if(findPrey == 1){
+      gP->x = preyX, gP->y = preyY;
+  }else if(findPrey == 0){
     ShortestManhattanDistance(sP, gP);
-    printf("gP : %d %d\n", gP->y, gP->x);
-    // sP->y = predatorPosition[n][0];
-    // sP->x = predatorPosition[n][1];
-  // if(abs(posX - sP->x) + abs(posY - sP->y) >= 16){
-  //   posX = (int)(abs(posX - sP->x) / 2);
-  //   posY = (int)(abs(posY - sP->y) / 2);
-  // }
-    // 定位置についた、かつ、Preyが見つかっていない
-    // if(findPrey == 0 && IsArrivedPosition == 1){
-    //     // *point = RightHandRule(sP->y, sP->x);
-    //     printf("");
-    // }
-    // Preyが見つかった、または、定位置についていない
-    // else if(findPrey == 1 || IsArrivedPosition == 0){
-        // Preyを見つけていれば
-        if(findPrey == 1){
-            gP->x = preyX, gP->y = preyY;
-        }
-        // 定位置についていなければ
-        // else if(IsArrivedPosition == 0){
-        //     gP->x = posX, gP->y = posY;
-        // }
-        struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-        startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
-        struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
-        goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
+  }
 
-        /* オープンリストの作成 */
-        struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-        *openList = NULL;
+  struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
+  struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
 
-        /* クローズリストの作成 */
-        struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
-        *closedList = NULL;
-        (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
-        memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
+  /* オープンリストの作成 */
+  struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *openList = NULL;
 
-        /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-        struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
-        /* 現在地から次の移動位置を受け取る */
-        struct predatorPoint* nextPosition = predatorRetrace(finished);
+  /* クローズリストの作成 */
+  struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  *closedList = NULL;
+  (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+  memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
 
-        char act[] = {'u', 'd', 'l', 'r'}; // up, down, left, right, stay
-        
-        int actP[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for(i = 0; i < 4; i++){
-            /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
-            if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
-                break;
-            }
-        }
-        if(nextPosition->x == goalNode->pnt->x && nextPosition->y == goalNode->pnt->y) IsArrivedPosition = 1;
-
-    // }    
-    // History();
-    history[sP->y][sP->x] += 1;
-
-    // printf("%d\n", *point);
-    return actNum[i];
+  /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
+  struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+  /* 現在地から次の移動位置を受け取る */
+  struct predatorPoint* nextPosition = predatorRetrace(finished);
+  for(i = 0; i < 4; i++){
+      /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
+      if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
+          break;
+      }
+  }
+  history[sP->y][sP->x] += 1;
+  return actNum[i];
 }
 
 
     
-int RightHandRule(int posY, int posX){
-    char array[4] = {'t', 'd', 'l', 'r'};
-    // 右方向に行けるなら
-    // その場所に障害物がない、かつ、フィールド内であること
-    printf("%d %d\n", posY, posX);
-    if(map[posY][posX + 1] == 0 && posX+1 < 16) return (int)array[3]; // 右に行けるなら
-    else if(map[posY + 1][posX] == 0 && posY+1 < 16) return (int)array[1]; // 下に行けるなら
-    else if(map[posY][posX - 1] == 0 && 0 <= posX-1) return (int)array[2]; // 左に行けるなら
-    else if(map[posY - 1][posX] == 0 && 0 <= posY-1) return (int)array[0]; // 上に行けるなら
-}
 
 void PredatorPosition(struct predatorPoint* pos, int n){
     int i, j;
@@ -446,25 +387,10 @@ void ShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* g
           max = heatMap[i][j];
           gP->y = i;
           gP->x = j;
-        }
-        
+        } 
       }
     }
   }
-}
-
-// int MaximumMap(int map[][], ){
-
-// }
-
-void History(){
-    for(int i = 0; i < 16; i++){
-        for(int j = 0; j < 16; j++){
-            if(history[i][j] > 0){
-                history[i][j] -= 1;
-            }
-        }
-    }
 }
 
 void MakeHeatMap(){
@@ -497,111 +423,4 @@ void MakeHeatMap(){
       }
     }
   }
-
-  for(i = 0; i < WORLD_SIZE; i++){
-    for(j = 0; j < WORLD_SIZE; j++){
-      printf("%2d ", heatMap[i][j]);
-    }
-    printf("\n");
-  }
 }
-
-// void AdjacementMatrix(){
-//   int from = -1;      // 走査するノード, 最初のループに入ったときに0になる
-//   int to = from + 1;  // fromの右隣のノード
-//   int i, j;
-
-//   /* 隣接行列を0で初期化*/
-//   for (i = 0; i < NODE_NUM; i++) {
-//     for (j = 0; j < NODE_NUM; j++) {
-//       predator_adj[i][j] = 0;
-//     }
-//   }
-
-
-  /* x軸方向のエッジを検出*/
-//   for (i = 0; i < WORLD_SIZE; i++) {
-//     /* 走査するノードを１列右にシフト*/
-//     from += 1;
-//     to = from + 1;
-
-//     for (j = 0; j < WORLD_SIZE - 1; j++) {
-//       if (map[i][j] != VALUE_OF_OBSTACLE
-//            && map[i][j+1] != VALUE_OF_OBSTACLE) {
-//         predator_adj[from][to] = 1;
-//         predator_adj[to][from] = 1;
-//       }
-
-//       from++;
-//       to++;
-//     }
-//   }
-//   from = (WORLD_SIZE * (WORLD_SIZE - 1) - 1);  // 最初のループに入ったときに0になる
-//   to = from + WORLD_SIZE;                      // fromの下のノード
-
-//   /* y軸方向のエッジを検出*/
-//   for (i = 0; i < WORLD_SIZE; i++) {
-//     /* 走査するノードを１列右にシフト*/
-//     from -= (WORLD_SIZE * (WORLD_SIZE - 1) - 1);
-//     to = from + WORLD_SIZE;
-
-//     for (j = 0; j < WORLD_SIZE - 1; j++) {
-//       if (map[j][i] != VALUE_OF_OBSTACLE
-//            && map[j+1][i] != VALUE_OF_OBSTACLE) {
-//         predator_adj[from][to] = 1;
-//         predator_adj[to][from] = 1;
-//       }
-
-//       from += WORLD_SIZE;
-//       to = from + WORLD_SIZE;
-//     }
-//   }
-
-// }
-
-// void CheckAdjacent(){
-//   int i, j;
-//   int cnt;
-
-//   for(i = 0; i < 256; i++){
-//     cnt = 0;
-//     for(j = 0; j < 256; j++){
-//       if(predator_adj[i][j] == 1){
-//         cnt+= 1;
-//       }
-//       // printf("%d ", predator_adj[i][j]);
-//     }
-//     printf("%3d", cnt);
-//     if((i+1) % WORLD_SIZE == 0 && i != 0){
-//       printf("\n");
-//     }
-//     // printf("\n");
-//   }
-// }
-
-// void Obstacle(){
-//   int i, j;
-//   int cnt;
-  
-//   for(i = 0; i < 8; i++){
-//     for(j = 0; j < 8; j++){
-//       obstacle[i][j] = 0;
-//     }
-//   }
-
-//   for(i = 0; i < WORLD_SIZE; i++){
-//     cnt = 0;
-//     for(j = 0; j < WORLD_SIZE; j++){
-//       if(map[i][j] == VALUE_OF_OBSTACLE){
-//         obstacle[(int)(i/2)][(int)(j/2)] += 1;
-//       }
-//     }
-//   }
-
-//   for(i = 0; i < 8; i++){
-//     for(j = 0; j < 8; j++){
-//       printf("%d ", obstacle[i][j]);
-//     }
-//     printf("\n");
-//   }
-// }
