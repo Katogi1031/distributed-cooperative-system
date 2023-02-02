@@ -89,9 +89,10 @@ void PreyInitializeArray(int matrix[WORLD_SIZE][WORLD_SIZE]){
 void PreyMapUpdate(int field[16][16], int flag[4]){
     for(int i = 0; i < WORLD_SIZE; i++){
         for(int j = 0; j < WORLD_SIZE; j++){
-            if(field[i][j] != VALUE_OF_UNREACH){
+            if(field[i][j] != VALUE_OF_UNREACH && preyMap[i][j] != -5){
                 preyMap[i][j] = field[i][j];
             }
+
             // どのPredatorを見つけたか
             if(field[i][j] == VALUE_OF_PREDATOR) flag[0] = 1;
             if(field[i][j] == VALUE_OF_PREDATOR + 1) flag[1] = 1;
@@ -492,7 +493,7 @@ void Prey(int field[16][16], int *point){
 
     for(i = 0; i < WORLD_SIZE; i++){
       for(j = 0; j < WORLD_SIZE; j++){
-        printf("%.2f ", evalTotal[i][j]);
+        printf("%.2f ", evalUnreach[i][j]);
       }
       printf("\n");
     }
