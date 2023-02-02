@@ -100,7 +100,7 @@ int top = 0;
 int down = 0;
 int left = 0;
 int right = 0;
-int preyX, preyY;
+int predator_preyX, predator_preyY;
 
 int predator_adj[NODE_NUM][NODE_NUM];
 
@@ -136,8 +136,8 @@ void PredatorUpdateMap(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE
             }
             if(predator_map[i][j] == 10){  // Preyが存在すれば
                 predator_findPrey = 1; 
-                preyY = i;
-                preyX = j;
+                predator_preyY = i;
+                predator_preyX = j;
             }
         }
     }
@@ -213,19 +213,20 @@ int PredatorSearch(struct predatorNode* current, struct predatorNode **openList,
 
   // ４方向のうち、移動可能なノードを拡張する
   struct predatorNode* tempList = calloc(4, sizeof(struct predatorNode));   
-   for(i = 0; i < 4; i++){
-      tempList[i].pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      if(i == 0 && predator_map[current->pnt->y-1][current->pnt->x] != -1 && predator_history[current->pnt->y-1][current->pnt->x] < 3 && 0 <= current->pnt->y-1)      // 上に障害物がないか
-        tempList[i].pnt->y = current->pnt->y-1, tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
-      else if(i == 3 && predator_map[current->pnt->y+1][current->pnt->x] != -1 && predator_history[current->pnt->y+1][current->pnt->x] < 3 && current->pnt->y+1 < 16) // 下に障害物がないか
-        tempList[i].pnt->y = current->pnt->y+1,tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
-      else if(i == 1 && predator_map[current->pnt->y][current->pnt->x+1] != -1 && predator_history[current->pnt->y][current->pnt->x+1] < 3 && current->pnt->x+1 < 16) // 右に障害物がないか
-        tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x+1, tempList[i].g = current->g+1;
-      else if(i == 2 && predator_map[current->pnt->y][current->pnt->x-1] != -1 && predator_history[current->pnt->y][current->pnt->x-1] < 3 && 0 <= current->pnt->x-1) // 左に障害物がないか
-        tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x-1, tempList[i].g = current->g+1;
+  for(i = 0; i < 4; i++){
+  
+    tempList[i].pnt = malloc(sizeof(struct predatorPoint));
+    if(i == 0 && predator_map[current->pnt->y-1][current->pnt->x] != -1 && predator_history[current->pnt->y-1][current->pnt->x] < 3 && 0 <= current->pnt->y-1)      // 上に障害物がないか
+      tempList[i].pnt->y = current->pnt->y-1, tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
+    else if(i == 3 && predator_map[current->pnt->y+1][current->pnt->x] != -1 && predator_history[current->pnt->y+1][current->pnt->x] < 3 && current->pnt->y+1 < 16) // 下に障害物がないか
+      tempList[i].pnt->y = current->pnt->y+1,tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
+    else if(i == 1 && predator_map[current->pnt->y][current->pnt->x+1] != -1 && predator_history[current->pnt->y][current->pnt->x+1] < 3 && current->pnt->x+1 < 16) // 右に障害物がないか
+      tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x+1, tempList[i].g = current->g+1;
+    else if(i == 2 && predator_map[current->pnt->y][current->pnt->x-1] != -1 && predator_history[current->pnt->y][current->pnt->x-1] < 3 && 0 <= current->pnt->x-1) // 左に障害物がないか
+      tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x-1, tempList[i].g = current->g+1;
 
-      tempList[i].parent = current;
-   }
+    tempList[i].parent = current;
+  }
 
   /* 拡張したノードがオープンリスト、クローズドリストになければ追加する*/
   for(j = 0; j < 4; j++){
@@ -319,7 +320,7 @@ int PredatorAct(int n){
   PredatorPosition(sP, n);
 
   if(predator_findPrey == 1){
-      gP->x = preyX, gP->y = preyY;
+      gP->x = predator_preyX, gP->y = predator_preyY;
   }else if(predator_findPrey == 0){
     PredatorShortestManhattanDistance(sP, gP);
   }
