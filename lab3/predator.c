@@ -38,10 +38,7 @@
 #define VALUE_OF_UNREACH -10
 #endif
 
-// 逆探索
-reverseSeachFlag = 0;
-
-static int map[WORLD_SIZE][WORLD_SIZE] = {{-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
+static int predator_map[WORLD_SIZE][WORLD_SIZE] = {{-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
                                           {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
                                           {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
                                           {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10},
@@ -59,7 +56,7 @@ static int map[WORLD_SIZE][WORLD_SIZE] = {{-10, -10, -10, -10, -10, -10, -10, -1
                                           {-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10}
 };
 
-static int history[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+static int predator_history[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -77,7 +74,7 @@ static int history[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
-static int heatMap[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+static int predator_heatMap[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -95,11 +92,9 @@ static int heatMap[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 };
-
-int obstacle[8][8];
 
 // Preyを見つけたかどうか
-int findPrey = 0;
+int predator_findPrey = 0;
 // Preyの4方向にPredatorがいるか
 int top = 0;
 int down = 0;
@@ -124,23 +119,23 @@ struct predatorPoint{
 
 int predatorPosition[4][2];
 
-void UpdateMap(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_SIZE], int field3[WORLD_SIZE][WORLD_SIZE], int field4[WORLD_SIZE][WORLD_SIZE]){
+void PredatorUpdateMap(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_SIZE], int field3[WORLD_SIZE][WORLD_SIZE], int field4[WORLD_SIZE][WORLD_SIZE]){
     for(int i = 0; i < 16; i++){
         for(int j = 0; j < 16; j++){
             if(field1[i][j] != -10){ // Predatorの視界範囲を共有マップに反映
-                map[i][j] = field1[i][j];
+                predator_map[i][j] = field1[i][j];
             }
             if(field2[i][j] != -10){ // Predatorの視界範囲を共有マップに反映
-                map[i][j] = field2[i][j];
+                predator_map[i][j] = field2[i][j];
             }
             if(field3[i][j] != -10){ // Predatorの視界範囲を共有マップに反映
-                map[i][j] = field3[i][j];
+                predator_map[i][j] = field3[i][j];
             }
             if(field4[i][j] != -10){ // Predatorの視界範囲を共有マップに反映
-                map[i][j] = field4[i][j];
+                predator_map[i][j] = field4[i][j];
             }
-            if(map[i][j] == 10){  // Preyが存在すれば
-                findPrey = 1; 
+            if(predator_map[i][j] == 10){  // Preyが存在すれば
+                predator_findPrey = 1; 
                 preyY = i;
                 preyX = j;
             }
@@ -151,7 +146,7 @@ void UpdateMap(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_
 void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_SIZE], int field3[WORLD_SIZE][WORLD_SIZE], int field4[WORLD_SIZE][WORLD_SIZE], int *point1, int *point2, int *point3, int *point4){
   
   // 各predatorの視界からマップを更新
-  UpdateMap(field1, field2, field3, field4);
+  PredatorUpdateMap(field1, field2, field3, field4);
 
   // for(int i = 0; i < WORLD_SIZE; i++){
   //       for(int j = 0; j < WORLD_SIZE; j++){
@@ -161,7 +156,7 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
   //   }
 
   // predatorの行動戦略を取得
-  MakeHeatMap();
+  PredatorMakeHeatMap();
   Predator1(field1, point1);
   Predator2(field2, point2);
   Predator3(field3, point3);
@@ -172,25 +167,26 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
 
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
-int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
-int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
-struct predatorPoint* predatorRetrace(struct predatorNode* goalNode);
+struct predatorNode* PredatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
+int PredatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
+int PredatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
+struct predatorPoint* PredatorRetrace(struct predatorNode* goalNode);
 
 /* AStarAlgorithm */
 /* A*アルゴリズムを用いてスタートノードからゴールノードまでの最短距離を求める */
-struct predatorNode* predatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** closedList, int l2){
+struct predatorNode* PredatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** closedList, int l2){
   int i, j, nextIndex;
   int cnt = 0;
 
   /* オープンリストの長さを求める */
-  l1 = predatorSearch(current, openList, l1, closedList, l2);
+  l1 = PredatorSearch(current, openList, l1, closedList, l2);
   /* 経路コストを計算する */
-  nextIndex = predatorCalcCost(openList, goal, l1);
+  nextIndex = PredatorCalcCost(openList, goal, l1);
   struct predatorNode *nextNode = &((*openList)[nextIndex]);
   
   /* 次のオープンリストを作成する */
-  struct predatorNode *tempList = (struct predatorNode*)calloc(l1-1, sizeof(struct predatorNode));
+  struct predatorNode *tempList = calloc(l1-1, sizeof(struct predatorNode));
+
   for(i = 0, j=0; i < l1; i++){
     if(i != nextIndex){
       memcpy(&tempList[j], &((*openList)[i]), sizeof(struct predatorNode));
@@ -201,35 +197,31 @@ struct predatorNode* predatorAStar(struct predatorNode* current, struct predator
   *openList = tempList;
 
   /* クローズドノードに追加していく */
-  *closedList = (struct predatorNode*)realloc((*closedList), l2*(sizeof(struct predatorNode)));
+  *closedList = realloc((*closedList), l2*(sizeof(struct predatorNode)));
   memcpy(&((*closedList)[l2-1]), nextNode, sizeof(struct predatorNode));
 
   /* ゴールに到達していなければAStarAlgorithmを呼び出す */
   if(nextNode->pnt->x == goal->pnt->x && nextNode->pnt->y == goal->pnt->y)  return nextNode;
-  return predatorAStar(nextNode, goal, openList, l1, closedList, l2);
+  return PredatorAStar(nextNode, goal, openList, l1, closedList, l2);
 }
 
 /* predatorSearch */
 /* 現在地から移動可能なノードを拡張する */
-int predatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2){
+int PredatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2){
   int i, j, count, found;
   count = 0;
 
   // ４方向のうち、移動可能なノードを拡張する
-  struct predatorNode* tempList = (struct predatorNode*)calloc(4, sizeof(struct predatorNode));   
+  struct predatorNode* tempList = calloc(4, sizeof(struct predatorNode));   
    for(i = 0; i < 4; i++){
       tempList[i].pnt = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
-      int nY = (int)(current->pnt->y-1)/2;
-      int nX = (int)current->pnt->x/2;
-      if(i == 0 && map[current->pnt->y-1][current->pnt->x] != -1 && history[current->pnt->y-1][current->pnt->x] < 3 && 0 <= current->pnt->y-1){
-        // 上に障害物がないか
+      if(i == 0 && predator_map[current->pnt->y-1][current->pnt->x] != -1 && predator_history[current->pnt->y-1][current->pnt->x] < 3 && 0 <= current->pnt->y-1)      // 上に障害物がないか
         tempList[i].pnt->y = current->pnt->y-1, tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
-      }  
-      else if(i == 3 && map[current->pnt->y+1][current->pnt->x] != -1 && history[current->pnt->y+1][current->pnt->x] < 3 && current->pnt->y+1 < 16) // 下に障害物がないか
+      else if(i == 3 && predator_map[current->pnt->y+1][current->pnt->x] != -1 && predator_history[current->pnt->y+1][current->pnt->x] < 3 && current->pnt->y+1 < 16) // 下に障害物がないか
         tempList[i].pnt->y = current->pnt->y+1,tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
-      else if(i == 1 && map[current->pnt->y][current->pnt->x+1] != -1 && history[current->pnt->y][current->pnt->x+1] < 3 && current->pnt->x+1 < 16) // 右に障害物がないか
+      else if(i == 1 && predator_map[current->pnt->y][current->pnt->x+1] != -1 && predator_history[current->pnt->y][current->pnt->x+1] < 3 && current->pnt->x+1 < 16) // 右に障害物がないか
         tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x+1, tempList[i].g = current->g+1;
-      else if(i == 2 && map[current->pnt->y][current->pnt->x-1] != -1 && history[current->pnt->y][current->pnt->x-1] < 3 && 0 <= current->pnt->x-1) // 左に障害物がないか
+      else if(i == 2 && predator_map[current->pnt->y][current->pnt->x-1] != -1 && predator_history[current->pnt->y][current->pnt->x-1] < 3 && 0 <= current->pnt->x-1) // 左に障害物がないか
         tempList[i].pnt->y = current->pnt->y, tempList[i].pnt->x = current->pnt->x-1, tempList[i].g = current->g+1;
 
       tempList[i].parent = current;
@@ -244,7 +236,7 @@ int predatorSearch(struct predatorNode* current, struct predatorNode **openList,
       if(found == 0){
         count++;
         int total = l1 + count;
-        *openList = (struct predatorNode*)realloc((*openList), total*(sizeof(struct predatorNode)));
+        *openList = realloc((*openList), total*(sizeof(struct predatorNode)));
         memcpy(&((*openList)[total-1]), &tempList[j],sizeof(struct predatorNode));              
       }      
    } 
@@ -255,13 +247,13 @@ int predatorSearch(struct predatorNode* current, struct predatorNode **openList,
 /* 現在地からゴールノードまでの仮に見積もった距離を算出する
    オープンリスト内にあるノード全てと現在地までの総移動コストを求め、そのノードのインデックスを求める
  */
-int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1){
+int PredatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1){
   int i, difx, dify;
   for(i = 0; i < l1; i++){
     difx = abs((*openList)[i].pnt->x - goalNode->pnt->x);
     dify = abs((*openList)[i].pnt->y - goalNode->pnt->y);
-    // 三平方の定理(現在地からゴールノードまでの仮に見積もった距離)
-    (*openList)[i].h = difx+dify; // マンハッタン距離
+    // マンハッタン距離(現在地からゴールノードまでの仮に見積もった距離)
+    (*openList)[i].h = difx+dify; 
   }
   
   //  
@@ -279,13 +271,13 @@ int predatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNo
 
 /* Retrace */
 /* ゴールノードから現在地に至るまでのノードに遡り、現在地から次に移動するノードを求める */
-struct predatorPoint* predatorRetrace(struct predatorNode* goalNode){
+struct predatorPoint* PredatorRetrace(struct predatorNode* goalNode){
   struct predatorNode* current = goalNode;
   struct predatorPoint* ptr = NULL;
   int steps = 0, i;
   while(current->parent != NULL){
       steps++;
-      ptr = (struct predatorPoint*)realloc(ptr, steps*sizeof(struct predatorPoint));
+      ptr = realloc(ptr, steps*sizeof(struct predatorPoint));
       memcpy(&ptr[steps-1], current->pnt, sizeof(struct predatorPoint));
       current = current->parent;                    
   }
@@ -297,8 +289,6 @@ void Predator1(int* field, int* point){
     *point = PredatorAct(1);
     printf("%d\n", *point);
 }
-
-
 
 void Predator2(int* field, int* point){
    
@@ -316,7 +306,6 @@ void Predator4(int* field, int* point){
     *point = PredatorAct(4);
     printf("%d\n", *point);
 }
-// 
 
 int PredatorAct(int n){
   int actNum[] = {117, 100, 108, 114};
@@ -324,43 +313,43 @@ int PredatorAct(int n){
   int i;
     
   /* スタートノードの作成 */
-  struct predatorPoint* sP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  struct predatorPoint* sP = malloc(sizeof(struct predatorPoint));
   /* ゴールノードの作成 */
-  struct predatorPoint* gP = (struct predatorPoint*)malloc(sizeof(struct predatorPoint));
+  struct predatorPoint* gP = malloc(sizeof(struct predatorPoint));
   PredatorPosition(sP, n);
 
-  if(findPrey == 1){
+  if(predator_findPrey == 1){
       gP->x = preyX, gP->y = preyY;
-  }else if(findPrey == 0){
-    ShortestManhattanDistance(sP, gP);
+  }else if(predator_findPrey == 0){
+    PredatorShortestManhattanDistance(sP, gP);
   }
 
-  struct predatorNode* startNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  struct predatorNode* startNode = malloc(sizeof(struct predatorNode));
   startNode->pnt = sP, startNode->parent = NULL, startNode->g=0, startNode->h=0;
-  struct predatorNode* goalNode = (struct predatorNode*)malloc(sizeof(struct predatorNode));
+  struct predatorNode* goalNode = malloc(sizeof(struct predatorNode));
   goalNode->pnt = gP, goalNode->parent = NULL, goalNode->g=0, goalNode->h=0;
 
   /* オープンリストの作成 */
-  struct predatorNode **openList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  struct predatorNode **openList = malloc(sizeof(struct predatorNode*));
   *openList = NULL;
 
   /* クローズリストの作成 */
-  struct predatorNode **closedList = (struct predatorNode**)malloc(sizeof(struct predatorNode*));
+  struct predatorNode **closedList = malloc(sizeof(struct predatorNode*));
   *closedList = NULL;
-  (*closedList) = (struct predatorNode*)realloc((*closedList),sizeof(struct predatorNode));
+  *closedList = realloc((*closedList),sizeof(struct predatorNode));
   memcpy(&((*closedList)[0]), startNode, sizeof(struct predatorNode));
 
   /* 現在位置からゴールまで全てのノードを保持するノードを作成 */
-  struct predatorNode* finished = predatorAStar(startNode, goalNode, openList, 0, closedList, 1);
+  struct predatorNode* finished = PredatorAStar(startNode, goalNode, openList, 0, closedList, 1);
   /* 現在地から次の移動位置を受け取る */
-  struct predatorPoint* nextPosition = predatorRetrace(finished);
+  struct predatorPoint* nextPosition = PredatorRetrace(finished);
   for(i = 0; i < 4; i++){
       /* 次の行動位置から現在地の差分をとり、移動方向を決定する */
       if(nextPosition->x == sP->x + actP[i][1] && nextPosition->y == sP->y + actP[i][0]){
           break;
       }
   }
-  history[sP->y][sP->x] += 1;
+  predator_history[sP->y][sP->x] += 1;
   return actNum[i];
 }
 
@@ -371,7 +360,7 @@ void PredatorPosition(struct predatorPoint* pos, int n){
     int i, j;
     for(i = 0; i < 16; i++){
         for(j = 0; j < 16; j++){
-            if(map[i][j] == n){
+            if(predator_map[i][j] == n){
                 pos->y = i; // 行
                 pos->x = j; // 列
             }
@@ -379,7 +368,7 @@ void PredatorPosition(struct predatorPoint* pos, int n){
     }
 }
 
-void ShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* gP){
+void PredatorShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* gP){
   int i, j;
   int max = 0;
   int shortest = 100;
@@ -387,11 +376,11 @@ void ShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* g
 
   for(i = 0; i < WORLD_SIZE; i++){
     for(j = 0; j < WORLD_SIZE; j++){
-      if(heatMap[i][j] >= max){
+      if(predator_heatMap[i][j] >= max){
         distance = abs(i - sP->y) + abs(j - sP->x);
         if(distance <= shortest){
           shortest = distance;
-          max = heatMap[i][j];
+          max = predator_heatMap[i][j];
           gP->y = i;
           gP->x = j;
         } 
@@ -400,33 +389,33 @@ void ShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* g
   }
 }
 
-void MakeHeatMap(){
+void PredatorMakeHeatMap(){
   int i, j;
   int temp = 0;
 
   for(i = 0; i < WORLD_SIZE; i++){
     for(j = 0; j < WORLD_SIZE; j++){
-      heatMap[i][j] = 0;
+      predator_heatMap[i][j] = 0;
     }
   }
 
   for(i = 0; i < WORLD_SIZE; i++){
     temp = 0;
     for(j = 0; j < WORLD_SIZE; j++){
-      if(map[i][j] == VALUE_OF_UNREACH){
-        heatMap[i][j] += 10;
+      if(predator_map[i][j] == VALUE_OF_UNREACH){
+        predator_heatMap[i][j] += 10;
       }
-      if(map[i+1][j] == VALUE_OF_UNREACH&& i+1 < 16){
-        heatMap[i][j] += 10;
+      if(predator_map[i+1][j] == VALUE_OF_UNREACH&& i+1 < 16){
+        predator_heatMap[i][j] += 10;
       }
-      if(map[i-1][j] == VALUE_OF_UNREACH&& 0 <= i+1){
-        heatMap[i][j] += 10;
+      if(predator_map[i-1][j] == VALUE_OF_UNREACH&& 0 <= i+1){
+        predator_heatMap[i][j] += 10;
       }
-      if(map[i][j+1] == VALUE_OF_UNREACH&& j+1 < 16){
-        heatMap[i][j] += 10;
+      if(predator_map[i][j+1] == VALUE_OF_UNREACH&& j+1 < 16){
+        predator_heatMap[i][j] += 10;
       }
-      if(map[i][j-1] == VALUE_OF_UNREACH&& 0 <= j-1){
-        heatMap[i][j] += 10;
+      if(predator_map[i][j-1] == VALUE_OF_UNREACH&& 0 <= j-1){
+        predator_heatMap[i][j] += 10;
       }
     }
   }
