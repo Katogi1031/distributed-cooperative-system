@@ -143,10 +143,10 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
 }
 
 /* 関数の呼び出し順に宣言したいための処置 */
-struct predatorNode* PredatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
-int PredatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
-int PredatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
-struct predatorPoint* PredatorRetrace(struct predatorNode* goalNode);
+// struct predatorNode* PredatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
+// int PredatorSearch(struct predatorNode* current, struct predatorNode **openList, int l1, struct predatorNode **closedList, int l2);
+// int PredatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNode, int l1);
+// struct predatorPoint* PredatorRetrace(struct predatorNode* goalNode);
 
 /* AStarAlgorithm */
 /* A*アルゴリズムを用いてスタートノードからゴールノードまでの最短距離を求める */

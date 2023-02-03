@@ -491,12 +491,5 @@ void Prey(int field[16][16], int *point){
       }
     }
 
-    for(i = 0; i < WORLD_SIZE; i++){
-      for(j = 0; j < WORLD_SIZE; j++){
-        printf("%.2f ", evalUnreach[i][j]);
-      }
-      printf("\n");
-    }
-
     *point = (int)act[index];
 }
