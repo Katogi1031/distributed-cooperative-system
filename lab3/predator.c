@@ -74,35 +74,13 @@ static int predator_history[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0
                                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
-static int predator_heatMap[WORLD_SIZE][WORLD_SIZE] = {  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-};
+static int predator_heatMap[WORLD_SIZE][WORLD_SIZE];
 
 // Preyを見つけたかどうか
 int predator_findPrey = 0;
-// Preyの4方向にPredatorがいるか
-int top = 0;
-int down = 0;
-int left = 0;
-int right = 0;
-int predator_preyX, predator_preyY;
 
-int predator_adj[NODE_NUM][NODE_NUM];
+int predator_preyX, predator_preyY; // Preyの位置を保存
 
 struct predatorNode{
   struct predatorPoint* pnt;
@@ -117,7 +95,15 @@ struct predatorPoint{
   int y;
 };
 
-int predatorPosition[4][2];
+/* 配列を初期化する */
+void PredatorInitializeArray(int matrix[WORLD_SIZE][WORLD_SIZE]){
+    int i, j;
+    for(i = 0; i < WORLD_SIZE; i++){
+        for(j = 0; j < WORLD_SIZE; j++){
+            matrix[i][j] = 0;
+        }
+    }
+}
 
 void PredatorUpdateMap(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_SIZE], int field3[WORLD_SIZE][WORLD_SIZE], int field4[WORLD_SIZE][WORLD_SIZE]){
     for(int i = 0; i < 16; i++){
@@ -148,23 +134,13 @@ void Predator(int field1[WORLD_SIZE][WORLD_SIZE], int field2[WORLD_SIZE][WORLD_S
   // 各predatorの視界からマップを更新
   PredatorUpdateMap(field1, field2, field3, field4);
 
-  // for(int i = 0; i < WORLD_SIZE; i++){
-  //       for(int j = 0; j < WORLD_SIZE; j++){
-  //           printf("%2d ", map[i][j]);
-  //       }
-  //       printf("\n");
-  //   }
-
   // predatorの行動戦略を取得
   PredatorMakeHeatMap();
   Predator1(field1, point1);
   Predator2(field2, point2);
   Predator3(field3, point3);
   Predator4(field4, point4);
-
-
 }
-
 
 /* 関数の呼び出し順に宣言したいための処置 */
 struct predatorNode* PredatorAStar(struct predatorNode* current, struct predatorNode* goal, struct predatorNode **openList, int l1, struct predatorNode** losedList, int l2);
@@ -214,7 +190,6 @@ int PredatorSearch(struct predatorNode* current, struct predatorNode **openList,
   // ４方向のうち、移動可能なノードを拡張する
   struct predatorNode* tempList = calloc(4, sizeof(struct predatorNode));   
   for(i = 0; i < 4; i++){
-  
     tempList[i].pnt = malloc(sizeof(struct predatorPoint));
     if(i == 0 && predator_map[current->pnt->y-1][current->pnt->x] != -1 && predator_history[current->pnt->y-1][current->pnt->x] < 3 && 0 <= current->pnt->y-1)      // 上に障害物がないか
       tempList[i].pnt->y = current->pnt->y-1, tempList[i].pnt->x = current->pnt->x, tempList[i].g = current->g+1;
@@ -257,7 +232,7 @@ int PredatorCalcCost(struct predatorNode **openList, struct predatorNode* goalNo
     (*openList)[i].h = difx+dify; 
   }
   
-  //  
+    
   int min, minIndex;
   min = (*openList)[0].g + (*openList)[0].h;
   minIndex = 0;
@@ -282,30 +257,25 @@ struct predatorPoint* PredatorRetrace(struct predatorNode* goalNode){
       memcpy(&ptr[steps-1], current->pnt, sizeof(struct predatorPoint));
       current = current->parent;                    
   }
-  printf("%d %d\n", current->pnt->y, current->pnt->x);
   return &ptr[steps-1];
 }
 
 void Predator1(int* field, int* point){
     *point = PredatorAct(1);
-    printf("%d\n", *point);
 }
 
 void Predator2(int* field, int* point){
    
-    *point = PredatorAct(2);
-    printf("%d\n", *point);
+    *point = PredatorAct(2);    
 }
 
 void Predator3(int* field, int* point){
     *point = PredatorAct(3);
-    printf("%d\n", *point);
     
 }
 
 void Predator4(int* field, int* point){
     *point = PredatorAct(4);
-    printf("%d\n", *point);
 }
 
 int PredatorAct(int n){
@@ -372,15 +342,15 @@ void PredatorPosition(struct predatorPoint* pos, int n){
 void PredatorShortestManhattanDistance(struct predatorPoint* sP, struct predatorPoint* gP){
   int i, j;
   int max = 0;
-  int shortest = 100;
+  int min = 100;
   int distance;
 
   for(i = 0; i < WORLD_SIZE; i++){
     for(j = 0; j < WORLD_SIZE; j++){
       if(predator_heatMap[i][j] >= max){
         distance = abs(i - sP->y) + abs(j - sP->x);
-        if(distance <= shortest){
-          shortest = distance;
+        if(distance <= min){
+          min = distance;
           max = predator_heatMap[i][j];
           gP->y = i;
           gP->x = j;
@@ -392,16 +362,9 @@ void PredatorShortestManhattanDistance(struct predatorPoint* sP, struct predator
 
 void PredatorMakeHeatMap(){
   int i, j;
-  int temp = 0;
+  PredatorInitializeArray(predator_heatMap);
 
   for(i = 0; i < WORLD_SIZE; i++){
-    for(j = 0; j < WORLD_SIZE; j++){
-      predator_heatMap[i][j] = 0;
-    }
-  }
-
-  for(i = 0; i < WORLD_SIZE; i++){
-    temp = 0;
     for(j = 0; j < WORLD_SIZE; j++){
       if(predator_map[i][j] == VALUE_OF_UNREACH){
         predator_heatMap[i][j] += 10;
